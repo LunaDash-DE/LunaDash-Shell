@@ -17,6 +17,7 @@ import "compatibility"
 import "windows"
 import "plugins"
 import "components/PopupPolicy.js" as PopupPolicy
+import "session/StateUpdates.js" as StateUpdates
 
 ShellRoot {
     id: root
@@ -25,6 +26,8 @@ ShellRoot {
     Component.onCompleted: Quickshell.watchFiles = Quickshell.env("LUNADASH_QML_WATCH") === "1"
     property var state: ({ workspace: 0, clients: [], language: "en_US", wallpaper: 0, wallpaperImage: Quickshell.env("LUNADASH_WALLPAPER") || "" })
     property bool stateReady: false
+    property var systemState: ({})
+    property string systemFingerprint: ""
     property string settingsPage: "general"
     property string lastCaptureError: ""
     readonly property string bin: Quickshell.env("LUNADASH_BIN_DIR") || Quickshell.env("LUDASH_BIN_DIR")
@@ -332,14 +335,23 @@ ShellRoot {
         // keeps showing progress even after a QML reload.
         root.syncPersistentUpdateInstall(result)
 
+        // Panel CPU/battery and settings telemetry must remain live even when
+        // unrelated settings bindings retain a stable desktop snapshot.
+        if (result.system !== undefined) {
+            const systemFingerprint = JSON.stringify(result.system)
+            if (systemFingerprint !== root.systemFingerprint) {
+                root.systemFingerprint = systemFingerprint
+                root.systemState = result.system
+            }
+        }
+
         // System performance counters change every 1.5 s. Replacing the entire
         // root state object for those counters forces every settings binding to
         // re-evaluate while the user is typing. Keep the last system snapshot
         // unless a page that actually displays live performance is open.
         const needsLiveSystem = root.overviewOpen ||
             (root.settingsOpen && root.settingsPage === "about")
-        if (!needsLiveSystem && root.state.system !== undefined)
-            result.system = root.state.system
+        result = StateUpdates.prepare(result, root.state, needsLiveSystem)
 
         const fingerprint = JSON.stringify(result)
         if (fingerprint === root.stateFingerprint)
@@ -502,7 +514,7 @@ ShellRoot {
 
     Process {
         id: status
-        command: [root.controlExecutable, "status"]
+        command: [root.controlExecutable, "status", root.stateReady ? root.state.language || "" : ""]
         stdout: StdioCollector {
             onStreamFinished: {
                 if (!text.trim()) return
