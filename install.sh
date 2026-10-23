@@ -62,7 +62,9 @@ if $dry_run; then
     exit 0
 fi
 
-stage=$(mktemp -d "${TMPDIR:-/tmp}/lunadash-shell-stage.XXXXXXXX")
+parent=$(dirname -- "$destination")
+install -d -m 0755 -- "$parent"
+stage=$(mktemp -d "$parent/.lunadash-shell-stage.XXXXXXXX")
 cleanup() { rm -rf -- "$stage"; }
 trap cleanup EXIT
 while IFS= read -r -d '' file; do
@@ -75,8 +77,6 @@ while IFS= read -r -d '' file; do
 done < <(find "$script_dir" -type f -print0)
 [[ -f $stage/shell.qml ]] || { echo 'shell.qml is missing from the install set.' >&2; exit 1; }
 
-parent=$(dirname -- "$destination")
-install -d -m 0755 -- "$parent"
 rm -rf -- "$destination"
 mv -- "$stage" "$destination"
 trap - EXIT
