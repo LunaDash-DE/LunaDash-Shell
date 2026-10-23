@@ -18,6 +18,6 @@ By default, the files are installed to `~/.local/share/lunadash/shell`. Choose a
 curl -fsSL https://raw.githubusercontent.com/LunaDash-DE/LunaDash-Shell/main/install.sh | bash
 ```
 
-The installer copies only QML, JavaScript, `qmldir`, and UI asset files. It does not install Quickshell or LunaDash's native services. Both are runtime requirements supplied separately.
+The installer copies only QML, JavaScript, `qmldir`, and UI asset files. It does not install Quickshell or LunaDash's native services. Both are runtime requirements supplied separately. The repository's CI parses the QML files and runs the Qt Quick UI tests.
 
 A Shell commit does not update an installed integration checkout automatically. LunaDash pins the exact Shell commit in its `dev` branch and adopts updates through its install/package configuration.

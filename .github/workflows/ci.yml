@@ -25,6 +25,10 @@ jobs:
           while IFS= read -r -d '' file; do
             /usr/lib/qt6/bin/qmlformat "$file" >/dev/null
           done < <(find . -type f -name '*.qml' -print0)
+      - name: Run Shell UI tests
+        run: |
+          QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software QML_XHR_ALLOW_FILE_READ=1 \
+            /usr/lib/qt6/bin/qmltestrunner -input tests/qml
       - name: Installer syntax and preview
         run: |
           bash -n install.sh
