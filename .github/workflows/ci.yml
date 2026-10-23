@@ -33,3 +33,6 @@ jobs:
         run: |
           bash -n install.sh
           ./install.sh --prefix "$RUNNER_TEMP/lunadash-prefix" --dry-run
+          ./install.sh --prefix /usr --destdir "$RUNNER_TEMP/lunadash-stage"
+          test -r "$RUNNER_TEMP/lunadash-stage/usr/share/lunadash/shell/shell.qml"
+          test ! -e "$RUNNER_TEMP/lunadash-stage/usr/share/lunadash/shell/tests"

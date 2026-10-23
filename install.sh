@@ -70,6 +70,9 @@ trap cleanup EXIT
 while IFS= read -r -d '' file; do
     relative=${file#"$script_dir"/}
     case "$relative" in
+        .git/*|.github/*|tests/*)
+            continue
+            ;;
         *.qml|*.js|*.svg|*.png|*.jpg|*.jpeg|*.webp|*.gif|qmldir)
             install -D -m 0644 -- "$file" "$stage/$relative"
             ;;
