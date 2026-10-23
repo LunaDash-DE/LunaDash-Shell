@@ -1,0 +1,31 @@
+name: Shell CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  qml:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install Qt Quick checks
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qt6-declarative-dev-tools libqt6svg6 qml6-module-qttest \
+            qml6-module-qtquick-controls qml6-module-qtquick-layouts \
+            qml6-module-qtquick-window qml6-module-qtquick-templates \
+            qml6-module-qtquick-shapes qml6-module-qtqml-workerscript
+      - name: Parse all QML
+        run: |
+          while IFS= read -r -d '' file; do
+            /usr/lib/qt6/bin/qmlformat "$file" >/dev/null
+          done < <(find . -type f -name '*.qml' -print0)
+      - name: Installer syntax and preview
+        run: |
+          bash -n install.sh
+          ./install.sh --prefix "$RUNNER_TEMP/lunadash-prefix" --dry-run
