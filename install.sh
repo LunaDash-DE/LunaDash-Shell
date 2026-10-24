@@ -3,7 +3,10 @@ set -euo pipefail
 
 repo_url=https://github.com/LunaDash-DE/LunaDash-Shell.git
 slintlu_url=https://github.com/LunaDash-DE/SlintLu.git
-script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+# Empty when the script is piped into bash: the source tree is downloaded below.
+script_source=${BASH_SOURCE[0]:-}
+script_dir=
+[[ -z $script_source ]] || script_dir=$(cd -- "$(dirname -- "$script_source")" && pwd)
 prefix=${HOME:?HOME must be set}/.local
 custom_data_home=${XDG_DATA_HOME:-}
 prefix_set=false
@@ -44,7 +47,7 @@ while (($#)); do
     shift
 done
 
-if [[ ! -f $script_dir/shell.slint ]]; then
+if [[ -z $script_dir || ! -f $script_dir/shell.slint ]]; then
     command -v git >/dev/null 2>&1 || { echo 'git is required to download LunaDash-Shell.' >&2; exit 1; }
     checkout=$(mktemp -d "${TMPDIR:-/tmp}/lunadash-shell.XXXXXXXX")
     trap 'rm -rf -- "$checkout"' EXIT
@@ -122,7 +125,7 @@ trap - EXIT
 install -d -m 0755 -- "$(dirname -- "$launcher")"
 cat > "$launcher" <<EOF
 #!/bin/sh
-# Starts the LunaDash shell with SlintLu. Extra arguments go to \`slintlu\`.
+# Starts the LunaDash shell with SlintLu. Extra arguments are options of \`slintlu run\`.
 slintlu=\$(command -v slintlu || echo "\$HOME/.cargo/bin/slintlu")
 exec "\$slintlu" --config "$shell_directory" "\$@"
 EOF

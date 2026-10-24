@@ -29,6 +29,9 @@ jobs:
           test -r "$stage/share/lunadash/shell/assets/wallpapers/florist.png"
           test -x "$stage/bin/lunadash-shell"
           test ! -e "$stage/share/lunadash/shell/scripts"
+          # Piped into bash (curl … | bash): downloads main and installs from it.
+          bash -s -- --prefix "$RUNNER_TEMP/piped" < install.sh
+          test -r "$RUNNER_TEMP/piped/share/lunadash/shell/shell.slint"
       - name: Translations are up to date
         run: |
           python3 scripts/extract-tr.py
