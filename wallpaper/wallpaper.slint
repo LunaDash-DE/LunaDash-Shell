@@ -1,0 +1,52 @@
+// The wallpaper, with an optional large clock in the corner.
+
+import { PanelWindow, Layer, ExclusiveMode, Files } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { Prefs } from "../state/prefs.slint";
+import { Time } from "../state/time.slint";
+
+export global Wallpapers {
+    // The bundled default wallpaper.
+    out property <image> default: @image-url("../assets/wallpapers/florist.png");
+    public pure function current() -> image {
+        Prefs.wallpaper != "" && Files.exists(Prefs.wallpaper) ? Files.image(Prefs.wallpaper) : root.default
+    }
+}
+
+export component Wallpaper inherits PanelWindow {
+    namespace: "lunadash-wallpaper";
+    layer: Layer.background;
+    exclusive-mode: ExclusiveMode.ignore;
+    anchor-top: true;
+    anchor-bottom: true;
+    anchor-left: true;
+    anchor-right: true;
+    default-font-family: Style.font;
+
+    Rectangle { background: Style.base; }
+    Image {
+        width: parent.width;
+        height: parent.height;
+        source: Wallpapers.current();
+        image-fit: cover;
+    }
+    if Prefs.desktop-clock: VerticalLayout {
+        x: 56px;
+        y: parent.height - self.preferred-height - 96px;
+        spacing: 0px;
+        Text {
+            text: Time.clock;
+            color: #ffffff;
+            font-size: 96px;
+            font-weight: 200;
+            stroke: #00000030;
+            stroke-width: 1px;
+        }
+        Text {
+            text: Time.long-date;
+            color: #ffffffd8;
+            font-size: 22px;
+            font-weight: 500;
+        }
+    }
+}

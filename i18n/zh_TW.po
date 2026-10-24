@@ -1,0 +1,588 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: LunaDash Shell\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: dashboard/dashboard.slint:100
+msgid "A modern Wayland desktop"
+msgstr "現代化的 Wayland 桌面"
+
+#: dashboard/dashboard.slint:120
+msgid "Charging"
+msgstr "充電中"
+
+#: dashboard/dashboard.slint:120 settings/settings.slint:259
+msgid "Uptime"
+msgstr "運作時間"
+
+#: dashboard/dashboard.slint:127
+msgid "CPU"
+msgstr "處理器"
+
+#: dashboard/dashboard.slint:128 settings/settings.slint:258
+msgid "Memory"
+msgstr "記憶體"
+
+#: dashboard/dashboard.slint:135
+msgid "Network"
+msgstr "網路"
+
+#: dashboard/dashboard.slint:136 panel/network-popup.slint:20 panel/network-popup.slint:46
+msgid "Connected"
+msgstr "已連線"
+
+#: dashboard/dashboard.slint:136
+msgid "Limited"
+msgstr "受限"
+
+#: dashboard/dashboard.slint:136
+msgid "Offline"
+msgstr "離線"
+
+#: dashboard/dashboard.slint:138
+msgid "Temperature"
+msgstr "溫度"
+
+#: dashboard/dashboard.slint:142 settings/settings.slint:304 welcome/welcome.slint:60
+msgid "Settings"
+msgstr "設定"
+
+#: dashboard/dashboard.slint:143
+msgid "Files"
+msgstr "檔案"
+
+#: dashboard/dashboard.slint:144
+msgid "Terminal"
+msgstr "終端機"
+
+#: dashboard/dashboard.slint:156 panel/network-popup.slint:25
+msgid "Wi-Fi"
+msgstr "Wi-Fi"
+
+#: dashboard/dashboard.slint:157 dashboard/dashboard.slint:165 panel/network-popup.slint:26
+msgid "On"
+msgstr "開啟"
+
+#: dashboard/dashboard.slint:157 dashboard/dashboard.slint:165 panel/network-popup.slint:26
+msgid "Off"
+msgstr "關閉"
+
+#: dashboard/dashboard.slint:164 panel/network-popup.slint:37
+msgid "Bluetooth"
+msgstr "藍牙"
+
+#: dashboard/dashboard.slint:174 dashboard/dashboard.slint:325 settings/settings.slint:172
+msgid "Do not disturb"
+msgstr "勿擾模式"
+
+#: dashboard/dashboard.slint:180
+msgid "Keep awake"
+msgstr "保持喚醒"
+
+#: dashboard/dashboard.slint:189 settings/settings.slint:83
+msgid "Dark"
+msgstr "深色"
+
+#: dashboard/dashboard.slint:189 settings/settings.slint:83
+msgid "Light"
+msgstr "淺色"
+
+#: dashboard/dashboard.slint:190 settings/settings.slint:78 settings/settings.slint:281
+msgid "Appearance"
+msgstr "外觀"
+
+#: dashboard/dashboard.slint:196 settings/settings.slint:128 settings/settings.slint:282
+msgid "Wallpaper"
+msgstr "桌布"
+
+#: dashboard/dashboard.slint:221
+msgid "Nothing is playing"
+msgstr "目前沒有播放"
+
+#: dashboard/dashboard.slint:255
+msgid "PLAYERS"
+msgstr "播放器"
+
+#: dashboard/dashboard.slint:272
+#, c-format
+msgid "PROCESSOR · {}%"
+msgstr "處理器 · {}%"
+
+#: dashboard/dashboard.slint:293
+msgid "MEMORY"
+msgstr "記憶體"
+
+#: dashboard/dashboard.slint:296
+msgid "SWAP"
+msgstr "交換空間"
+
+#: dashboard/dashboard.slint:298
+msgid "DISK"
+msgstr "磁碟"
+
+#: dashboard/dashboard.slint:307 panel/network-popup.slint:13
+msgid "NETWORK"
+msgstr "網路"
+
+#: dashboard/dashboard.slint:309
+msgid "SYSTEM"
+msgstr "系統"
+
+#: dashboard/dashboard.slint:311
+#, c-format
+msgid "Up {}"
+msgstr "已運作 {}"
+
+#: dashboard/dashboard.slint:312
+#, c-format
+msgid "Hottest sensor {}°C"
+msgstr "最高溫感測器 {}°C"
+
+#: dashboard/dashboard.slint:322
+#, c-format
+msgid "{} notifications"
+msgstr "{} 則通知"
+
+#: dashboard/dashboard.slint:325
+msgid "Do not disturb is on"
+msgstr "勿擾模式已開啟"
+
+#: dashboard/dashboard.slint:328
+msgid "Clear all"
+msgstr "全部清除"
+
+#: dashboard/dashboard.slint:330
+msgid "Another notification daemon is running; LunaDash shows no history."
+msgstr "另一個通知服務正在執行，LunaDash 無法顯示通知紀錄。"
+
+#: dashboard/dashboard.slint:336
+msgid "You're all caught up"
+msgstr "沒有新通知"
+
+#: dashboard/dashboard.slint:386 welcome/welcome.slint:58
+msgid "Dashboard"
+msgstr "儀表板"
+
+#: dashboard/dashboard.slint:387
+msgid "Media"
+msgstr "媒體"
+
+#: dashboard/dashboard.slint:388
+msgid "Performance"
+msgstr "效能"
+
+#: dashboard/dashboard.slint:389 settings/settings.slint:164 settings/settings.slint:284
+msgid "Notifications"
+msgstr "通知"
+
+#: launcher/launcher.slint:143
+msgid "Search applications"
+msgstr "搜尋應用程式"
+
+#: launcher/launcher.slint:151
+msgid "Frequently used"
+msgstr "常用"
+
+#: launcher/launcher.slint:151
+#, c-format
+msgid "{} results"
+msgstr "{} 個結果"
+
+#: launcher/launcher.slint:179
+#, c-format
+msgid "No applications match “{}”"
+msgstr "沒有符合「{}」的應用程式"
+
+#: launcher/launcher.slint:184
+msgid "Enter to open · right-click to pin to the dock · Esc to close"
+msgstr "Enter 開啟 · 右鍵釘選到 Dock · Esc 關閉"
+
+#: panel/audio-popup.slint:14
+msgid "OUTPUT"
+msgstr "輸出"
+
+#: panel/audio-popup.slint:15
+msgid "No sound server (PipeWire or PulseAudio) is running."
+msgstr "沒有執行中的音訊伺服器（PipeWire 或 PulseAudio）。"
+
+#: panel/audio-popup.slint:25
+msgid "Muted"
+msgstr "已靜音"
+
+#: panel/audio-popup.slint:32
+msgid "MICROPHONE"
+msgstr "麥克風"
+
+#: panel/audio-popup.slint:42
+msgid "DEVICES"
+msgstr "裝置"
+
+#: panel/calendar-popup.slint:42 panel/calendar-popup.slint:43
+msgid "Mon"
+msgstr "一"
+
+#: panel/calendar-popup.slint:42 panel/calendar-popup.slint:43
+msgid "Tue"
+msgstr "二"
+
+#: panel/calendar-popup.slint:42 panel/calendar-popup.slint:43
+msgid "Wed"
+msgstr "三"
+
+#: panel/calendar-popup.slint:42 panel/calendar-popup.slint:43
+msgid "Thu"
+msgstr "四"
+
+#: panel/calendar-popup.slint:42 panel/calendar-popup.slint:43
+msgid "Fri"
+msgstr "五"
+
+#: panel/calendar-popup.slint:42 panel/calendar-popup.slint:43
+msgid "Sat"
+msgstr "六"
+
+#: panel/calendar-popup.slint:42 panel/calendar-popup.slint:43
+msgid "Sun"
+msgstr "日"
+
+#: panel/calendar-popup.slint:70
+msgid "Back to today"
+msgstr "回到今天"
+
+#: panel/clipboard-popup.slint:15
+msgid "CLIPBOARD"
+msgstr "剪貼簿"
+
+#: panel/clipboard-popup.slint:17
+msgid "Clear"
+msgstr "清除"
+
+#: panel/clipboard-popup.slint:23
+msgid "Copied text appears here."
+msgstr "複製的文字會出現在這裡。"
+
+#: panel/clipboard-popup.slint:23
+msgid "This compositor does not allow a clipboard history."
+msgstr "此合成器不支援剪貼簿紀錄。"
+
+#: panel/network-popup.slint:14
+msgid "NetworkManager is not running."
+msgstr "NetworkManager 未執行。"
+
+#: panel/network-popup.slint:19
+msgid "Not connected"
+msgstr "未連線"
+
+#: panel/network-popup.slint:20
+#, c-format
+msgid "Connected · signal {}%"
+msgstr "已連線 · 訊號 {}%"
+
+#: panel/network-popup.slint:21
+msgid "Connected without internet access"
+msgstr "已連線，但無法存取網際網路"
+
+#: panel/network-popup.slint:31
+msgid "BLUETOOTH"
+msgstr "藍牙"
+
+#: panel/network-popup.slint:32
+msgid "Bluetooth is off or not available."
+msgstr "藍牙已關閉或無法使用。"
+
+#: panel/network-popup.slint:38
+#, c-format
+msgid "{} connected"
+msgstr "已連線 {} 個"
+
+#: panel/network-popup.slint:46
+msgid "Paired"
+msgstr "已配對"
+
+#: panel/tray-menu.slint:16
+msgid "Loading…"
+msgstr "載入中…"
+
+#: session/lock-screen.slint:108 session/polkit-dialog.slint:98
+msgid "Checking…"
+msgstr "驗證中…"
+
+#: session/lock-screen.slint:108 session/polkit-dialog.slint:88
+msgid "Password"
+msgstr "密碼"
+
+#: session/polkit-dialog.slint:54
+msgid "Authentication required"
+msgstr "需要驗證"
+
+#: session/polkit-dialog.slint:59
+#, c-format
+msgid "Authenticating as {}"
+msgstr "以 {} 身分驗證"
+
+#: session/polkit-dialog.slint:96
+msgid "Cancel"
+msgstr "取消"
+
+#: session/polkit-dialog.slint:98
+msgid "Authenticate"
+msgstr "驗證"
+
+#: session/power-menu.slint:28
+msgid "Click again"
+msgstr "再按一次"
+
+#: session/power-menu.slint:66
+msgid "Power"
+msgstr "電源"
+
+#: session/power-menu.slint:72 settings/settings.slint:214
+msgid "Lock"
+msgstr "鎖定"
+
+#: session/power-menu.slint:80
+msgid "Suspend"
+msgstr "睡眠"
+
+#: session/power-menu.slint:87
+msgid "Log out"
+msgstr "登出"
+
+#: session/power-menu.slint:88
+msgid "Restart"
+msgstr "重新啟動"
+
+#: session/power-menu.slint:89
+msgid "Shut down"
+msgstr "關機"
+
+#: settings/settings.slint:80
+msgid "Mode"
+msgstr "模式"
+
+#: settings/settings.slint:81
+msgid "Follow the desktop, or always use the dark or light palette."
+msgstr "跟隨桌面設定，或固定使用深色或淺色配色。"
+
+#: settings/settings.slint:83
+msgid "Auto"
+msgstr "自動"
+
+#: settings/settings.slint:92
+msgid "Transparency"
+msgstr "透明效果"
+
+#: settings/settings.slint:92
+msgid "Translucent panels and popups."
+msgstr "半透明的面板與彈出視窗。"
+
+#: settings/settings.slint:94
+msgid "Animations"
+msgstr "動畫"
+
+#: settings/settings.slint:97
+#, c-format
+msgid "PALETTE · {}"
+msgstr "配色 · {}"
+
+#: settings/settings.slint:106
+msgid "LunaDash"
+msgstr "LunaDash"
+
+#: settings/settings.slint:107
+msgid "The default dark and light palettes"
+msgstr "預設的深色與淺色配色"
+
+#: settings/settings.slint:138
+msgid "Wallpaper folder"
+msgstr "桌布資料夾"
+
+#: settings/settings.slint:140
+msgid "Choose wallpaper"
+msgstr "選擇桌布"
+
+#: settings/settings.slint:143
+msgid "Desktop clock"
+msgstr "桌面時鐘"
+
+#: settings/settings.slint:143
+msgid "A large clock on the wallpaper."
+msgstr "在桌布上顯示大型時鐘。"
+
+#: settings/settings.slint:147 settings/settings.slint:283
+msgid "Panel & dock"
+msgstr "面板與 Dock"
+
+#: settings/settings.slint:148
+msgid "Show the dock"
+msgstr "顯示 Dock"
+
+#: settings/settings.slint:150
+msgid "24-hour clock"
+msgstr "24 小時制"
+
+#: settings/settings.slint:152
+msgid "Show seconds"
+msgstr "顯示秒數"
+
+#: settings/settings.slint:154
+msgid "Weeks start on Monday"
+msgstr "每週從星期一開始"
+
+#: settings/settings.slint:157
+msgid "Pinned applications"
+msgstr "釘選的應用程式"
+
+#: settings/settings.slint:158
+#, c-format
+msgid "{} pinned. Right-click an application in the launcher or dock to pin or unpin it."
+msgstr "已釘選 {} 個。在啟動器或 Dock 中以右鍵點選應用程式即可釘選或取消釘選。"
+
+#: settings/settings.slint:159
+msgid "Unpin all"
+msgstr "全部取消釘選"
+
+#: settings/settings.slint:166
+msgid "Another notification daemon is running. Stop it to use LunaDash notifications."
+msgstr "另一個通知服務正在執行。請停止它以使用 LunaDash 通知。"
+
+#: settings/settings.slint:170
+msgid "Pop-ups"
+msgstr "彈出通知"
+
+#: settings/settings.slint:170
+msgid "Show new notifications in the corner."
+msgstr "在角落顯示新通知。"
+
+#: settings/settings.slint:172
+msgid "Only critical notifications pop up."
+msgstr "只彈出緊急通知。"
+
+#: settings/settings.slint:175
+msgid "Pop-up duration"
+msgstr "彈出時間"
+
+#: settings/settings.slint:188 settings/settings.slint:285
+msgid "Power & lock"
+msgstr "電源與鎖定"
+
+#: settings/settings.slint:190
+msgid "Lock after inactivity"
+msgstr "閒置後鎖定"
+
+#: settings/settings.slint:192
+msgid "Never"
+msgstr "永不"
+
+#: settings/settings.slint:202
+msgid "Lock before sleep"
+msgstr "睡眠前鎖定"
+
+#: settings/settings.slint:212
+msgid "Keep the screen awake"
+msgstr "保持螢幕喚醒"
+
+#: settings/settings.slint:212
+msgid "Until LunaDash restarts."
+msgstr "直到 LunaDash 重新啟動。"
+
+#: settings/settings.slint:214
+msgid "Lock now"
+msgstr "立即鎖定"
+
+#: settings/settings.slint:218 settings/settings.slint:286
+msgid "Language"
+msgstr "語言"
+
+#: settings/settings.slint:241 settings/settings.slint:287
+msgid "About"
+msgstr "關於"
+
+#: settings/settings.slint:248
+#, c-format
+msgid "Desktop shell written in Slint, running on SlintLu {}"
+msgstr "以 Slint 撰寫的桌面殼層，執行於 SlintLu {}"
+
+#: settings/settings.slint:253
+msgid "System"
+msgstr "系統"
+
+#: settings/settings.slint:254
+msgid "Kernel"
+msgstr "核心"
+
+#: settings/settings.slint:255
+msgid "Host"
+msgstr "主機"
+
+#: settings/settings.slint:256
+msgid "Compositor"
+msgstr "合成器"
+
+#: settings/settings.slint:257
+msgid "Renderer"
+msgstr "渲染器"
+
+#: settings/settings.slint:269
+msgid "Show welcome"
+msgstr "顯示歡迎畫面"
+
+#: settings/settings.slint:270
+msgid "Reload shell"
+msgstr "重新載入殼層"
+
+#: wallpaper/gallery.slint:113
+msgid "LunaDash default"
+msgstr "LunaDash 預設"
+
+#: wallpaper/gallery.slint:137
+#, c-format
+msgid "No images in {}. Choose another folder above."
+msgstr "{} 中沒有圖片。請在上方選擇其他資料夾。"
+
+#: welcome/welcome.slint:53
+msgid "Welcome to LunaDash"
+msgstr "歡迎使用 LunaDash"
+
+#: welcome/welcome.slint:54
+msgid "Here is how to get around."
+msgstr "以下是基本操作方式。"
+
+#: welcome/welcome.slint:57
+msgid "Launcher"
+msgstr "啟動器"
+
+#: welcome/welcome.slint:57
+msgid "Press Super or click the apps button in the dock."
+msgstr "按下 Super 鍵，或點選 Dock 中的應用程式按鈕。"
+
+#: welcome/welcome.slint:57
+msgid "Click the diamond in the panel or the apps button in the dock."
+msgstr "點選面板中的菱形圖示，或 Dock 中的應用程式按鈕。"
+
+#: welcome/welcome.slint:58
+msgid "Click the moon in the panel for quick settings, media, performance and notifications."
+msgstr "點選面板中的月亮圖示，開啟快速設定、媒體、效能與通知。"
+
+#: welcome/welcome.slint:59
+msgid "Dock"
+msgstr "Dock"
+
+#: welcome/welcome.slint:59
+msgid "Right-click applications in the launcher or dock to pin them."
+msgstr "在啟動器或 Dock 中以右鍵點選應用程式即可釘選。"
+
+#: welcome/welcome.slint:60
+msgid "Change the theme, wallpaper, language and lock behaviour."
+msgstr "變更主題、桌布、語言與鎖定方式。"
+
+#: welcome/welcome.slint:65
+msgid "Open settings"
+msgstr "開啟設定"
+
+#: welcome/welcome.slint:66
+msgid "Get started"
+msgstr "開始使用"

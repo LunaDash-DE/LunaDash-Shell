@@ -1,0 +1,28 @@
+// Default applications: LunaDash's own choices when running on LunaDash, the XDG defaults
+// elsewhere.
+
+import { Compositor, Shell } from "@slintlu";
+
+export global DefaultApps {
+    public function terminal() {
+        if Compositor.has-commands {
+            Compositor.command("launch-default", "terminal");
+        } else {
+            Shell.exec("xdg-terminal-exec || foot || kitty || alacritty || wezterm || konsole || gnome-terminal || xterm");
+        }
+    }
+    public function files() {
+        if Compositor.has-commands {
+            Compositor.command("launch-default", "files");
+        } else {
+            Shell.exec("xdg-open \"$HOME\"");
+        }
+    }
+    public function browser() {
+        if Compositor.has-commands {
+            Compositor.command("launch-default", "browser");
+        } else {
+            Shell.exec("xdg-open https://");
+        }
+    }
+}

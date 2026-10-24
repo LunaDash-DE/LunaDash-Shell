@@ -1,0 +1,45 @@
+// Which popup or overlay is open, shared by every window through SlintLu's Shared global
+// (globals defined in Slint exist once per window, so they cannot carry this).
+
+import { Shared, Shell, Workspaces } from "@slintlu";
+
+export global UI {
+    // "calendar", "audio", "network", "clipboard", "tray" or "".
+    out property <string> popup: Shared.get-string("popup", "", Shared.revision);
+    // "launcher", "dashboard", "settings", "gallery", "power" or "".
+    out property <string> overlay: Shared.get-string("overlay", "", Shared.revision);
+    out property <int> dashboard-tab: Shared.get-number("dashboard-tab", 0, Shared.revision);
+    out property <string> settings-page: Shared.get-string("settings-page", "appearance", Shared.revision);
+
+    // Popups and overlays appear on the focused screen (or the first one).
+    out property <string> active-screen: Workspaces.focused-output != "" ? Workspaces.focused-output
+        : Shell.screens.length > 0 ? Shell.screens[0].name : "";
+    out property <bool> on-active-screen: root.active-screen == "" || Shell.screen.name == root.active-screen;
+    // One window handles shell-wide work (compositor requests, startup settings).
+    out property <bool> primary: Shell.screens.length == 0 || Shell.screen.name == Shell.screens[0].name;
+
+    public function toggle-popup(name: string) {
+        Shared.set-string("overlay", "");
+        Shared.set-string("popup", root.popup == name ? "" : name);
+    }
+    public function toggle-overlay(name: string) {
+        Shared.set-string("popup", "");
+        Shared.set-string("overlay", root.overlay == name ? "" : name);
+    }
+    public function open-overlay(name: string) {
+        Shared.set-string("popup", "");
+        Shared.set-string("overlay", name);
+    }
+    public function open-dashboard(tab: int) {
+        Shared.set-number("dashboard-tab", tab);
+        root.open-overlay("dashboard");
+    }
+    public function open-settings(page: string) {
+        Shared.set-string("settings-page", page);
+        root.open-overlay("settings");
+    }
+    public function close-all() {
+        Shared.set-string("popup", "");
+        Shared.set-string("overlay", "");
+    }
+}

@@ -1,0 +1,69 @@
+// A short introduction, shown once on the first start.
+
+import { Store, Compositor } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { UI } from "../state/ui.slint";
+import { Overlay } from "../components/overlay.slint";
+import { Icon } from "../components/icon.slint";
+import { TextButton, Card } from "../components/controls.slint";
+
+component Tip inherits Card {
+    in property <string> icon;
+    in property <string> title;
+    in property <string> text;
+    HorizontalLayout {
+        padding: Style.spacing-md;
+        spacing: Style.spacing-md;
+        Rectangle {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: Style.accent-soft;
+            Icon { name: root.icon; width: 20px; height: 20px; color: Style.accent; }
+        }
+        VerticalLayout {
+            alignment: center;
+            horizontal-stretch: 1;
+            Text { text: root.title; color: Style.text; font-weight: 600; }
+            Text { text: root.text; color: Style.muted; font-size: Style.font-small; wrap: word-wrap; }
+        }
+    }
+}
+
+export component Welcome inherits Overlay {
+    name: "welcome";
+    namespace: "lunadash-welcome";
+    content-width: 640px;
+    content-height: 560px;
+
+    function done() {
+        Store.set-bool("welcome-done", true);
+        UI.close-all();
+    }
+    escape => { root.done(); }
+
+    VerticalLayout {
+        padding: Style.spacing-xl;
+        spacing: Style.spacing-md;
+        HorizontalLayout {
+            spacing: Style.spacing-lg;
+            Image { source: @image-url("../assets/lunadash.png"); width: 64px; height: 64px; image-fit: contain; }
+            VerticalLayout {
+                alignment: center;
+                Text { text: @tr("Welcome to LunaDash"); color: Style.text; font-size: 26px; font-weight: 700; }
+                Text { text: @tr("Here is how to get around."); color: Style.muted; }
+            }
+        }
+        Tip { icon: "apps"; title: @tr("Launcher"); text: Compositor.name == "lunadash" ? @tr("Press Super or click the apps button in the dock.") : @tr("Click the diamond in the panel or the apps button in the dock."); }
+        Tip { icon: "dashboard"; title: @tr("Dashboard"); text: @tr("Click the moon in the panel for quick settings, media, performance and notifications."); }
+        Tip { icon: "dock"; title: @tr("Dock"); text: @tr("Right-click applications in the launcher or dock to pin them."); }
+        Tip { icon: "settings"; title: @tr("Settings"); text: @tr("Change the theme, wallpaper, language and lock behaviour."); }
+        Rectangle { vertical-stretch: 1; }
+        HorizontalLayout {
+            alignment: end;
+            spacing: Style.spacing-sm;
+            TextButton { text: @tr("Open settings"); clicked => { Store.set-bool("welcome-done", true); UI.open-settings("appearance"); } }
+            TextButton { text: @tr("Get started"); primary: true; clicked => { root.done(); } }
+        }
+    }
+}

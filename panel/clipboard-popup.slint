@@ -1,0 +1,49 @@
+// Clipboard history.
+
+import { ClipboardHistory } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { UI } from "../state/ui.slint";
+import { PanelPopup } from "popup.slint";
+import { SectionTitle, ListRow, IconButton, TextButton } from "../components/controls.slint";
+
+export component ClipboardPopup inherits PanelPopup {
+    name: "clipboard";
+    namespace: "lunadash-clipboard";
+    preferred-width: 400px;
+
+    HorizontalLayout {
+        SectionTitle { text: @tr("CLIPBOARD"); vertical-alignment: center; horizontal-stretch: 1; }
+        if ClipboardHistory.entries.length > 0: TextButton {
+            text: @tr("Clear");
+            icon: "trash";
+            clicked => { ClipboardHistory.clear(); }
+        }
+    }
+    if ClipboardHistory.entries.length == 0: Text {
+        text: ClipboardHistory.available ? @tr("Copied text appears here.") : @tr("This compositor does not allow a clipboard history.");
+        color: Style.muted;
+        wrap: word-wrap;
+    }
+    Flickable {
+        height: min(ClipboardHistory.entries.length * 50px, 420px);
+        content-height: list.preferred-height;
+        list := VerticalLayout {
+            spacing: 2px;
+            for entry in ClipboardHistory.entries: ListRow {
+                icon: "clipboard";
+                title: entry.preview;
+                clicked => {
+                    ClipboardHistory.copy(entry.id);
+                    UI.close-all();
+                }
+                IconButton {
+                    icon: "close";
+                    size: 26px;
+                    icon-size: 13px;
+                    y: (parent.height - self.height) / 2;
+                    clicked => { ClipboardHistory.remove(entry.id); }
+                }
+            }
+        }
+    }
+}

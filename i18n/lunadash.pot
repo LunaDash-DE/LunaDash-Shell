@@ -1,0 +1,588 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: LunaDash Shell\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: dashboard/dashboard.slint:100
+msgid "A modern Wayland desktop"
+msgstr ""
+
+#: dashboard/dashboard.slint:120
+msgid "Charging"
+msgstr ""
+
+#: dashboard/dashboard.slint:120 settings/settings.slint:259
+msgid "Uptime"
+msgstr ""
+
+#: dashboard/dashboard.slint:127
+msgid "CPU"
+msgstr ""
+
+#: dashboard/dashboard.slint:128 settings/settings.slint:258
+msgid "Memory"
+msgstr ""
+
+#: dashboard/dashboard.slint:135
+msgid "Network"
+msgstr ""
+
+#: dashboard/dashboard.slint:136 panel/network-popup.slint:20 panel/network-popup.slint:46
+msgid "Connected"
+msgstr ""
+
+#: dashboard/dashboard.slint:136
+msgid "Limited"
+msgstr ""
+
+#: dashboard/dashboard.slint:136
+msgid "Offline"
+msgstr ""
+
+#: dashboard/dashboard.slint:138
+msgid "Temperature"
+msgstr ""
+
+#: dashboard/dashboard.slint:142 settings/settings.slint:304 welcome/welcome.slint:60
+msgid "Settings"
+msgstr ""
+
+#: dashboard/dashboard.slint:143
+msgid "Files"
+msgstr ""
+
+#: dashboard/dashboard.slint:144
+msgid "Terminal"
+msgstr ""
+
+#: dashboard/dashboard.slint:156 panel/network-popup.slint:25
+msgid "Wi-Fi"
+msgstr ""
+
+#: dashboard/dashboard.slint:157 dashboard/dashboard.slint:165 panel/network-popup.slint:26
+msgid "On"
+msgstr ""
+
+#: dashboard/dashboard.slint:157 dashboard/dashboard.slint:165 panel/network-popup.slint:26
+msgid "Off"
+msgstr ""
+
+#: dashboard/dashboard.slint:164 panel/network-popup.slint:37
+msgid "Bluetooth"
+msgstr ""
+
+#: dashboard/dashboard.slint:174 dashboard/dashboard.slint:325 settings/settings.slint:172
+msgid "Do not disturb"
+msgstr ""
+
+#: dashboard/dashboard.slint:180
+msgid "Keep awake"
+msgstr ""
+
+#: dashboard/dashboard.slint:189 settings/settings.slint:83
+msgid "Dark"
+msgstr ""
+
+#: dashboard/dashboard.slint:189 settings/settings.slint:83
+msgid "Light"
+msgstr ""
+
+#: dashboard/dashboard.slint:190 settings/settings.slint:78 settings/settings.slint:281
+msgid "Appearance"
+msgstr ""
+
+#: dashboard/dashboard.slint:196 settings/settings.slint:128 settings/settings.slint:282
+msgid "Wallpaper"
+msgstr ""
+
+#: dashboard/dashboard.slint:221
+msgid "Nothing is playing"
+msgstr ""
+
+#: dashboard/dashboard.slint:255
+msgid "PLAYERS"
+msgstr ""
+
+#: dashboard/dashboard.slint:272
+#, c-format
+msgid "PROCESSOR · {}%"
+msgstr ""
+
+#: dashboard/dashboard.slint:293
+msgid "MEMORY"
+msgstr ""
+
+#: dashboard/dashboard.slint:296
+msgid "SWAP"
+msgstr ""
+
+#: dashboard/dashboard.slint:298
+msgid "DISK"
+msgstr ""
+
+#: dashboard/dashboard.slint:307 panel/network-popup.slint:13
+msgid "NETWORK"
+msgstr ""
+
+#: dashboard/dashboard.slint:309
+msgid "SYSTEM"
+msgstr ""
+
+#: dashboard/dashboard.slint:311
+#, c-format
+msgid "Up {}"
+msgstr ""
+
+#: dashboard/dashboard.slint:312
+#, c-format
+msgid "Hottest sensor {}°C"
+msgstr ""
+
+#: dashboard/dashboard.slint:322
+#, c-format
+msgid "{} notifications"
+msgstr ""
+
+#: dashboard/dashboard.slint:325
+msgid "Do not disturb is on"
+msgstr ""
+
+#: dashboard/dashboard.slint:328
+msgid "Clear all"
+msgstr ""
+
+#: dashboard/dashboard.slint:330
+msgid "Another notification daemon is running; LunaDash shows no history."
+msgstr ""
+
+#: dashboard/dashboard.slint:336
+msgid "You're all caught up"
+msgstr ""
+
+#: dashboard/dashboard.slint:386 welcome/welcome.slint:58
+msgid "Dashboard"
+msgstr ""
+
+#: dashboard/dashboard.slint:387
+msgid "Media"
+msgstr ""
+
+#: dashboard/dashboard.slint:388
+msgid "Performance"
+msgstr ""
+
+#: dashboard/dashboard.slint:389 settings/settings.slint:164 settings/settings.slint:284
+msgid "Notifications"
+msgstr ""
+
+#: launcher/launcher.slint:143
+msgid "Search applications"
+msgstr ""
+
+#: launcher/launcher.slint:151
+msgid "Frequently used"
+msgstr ""
+
+#: launcher/launcher.slint:151
+#, c-format
+msgid "{} results"
+msgstr ""
+
+#: launcher/launcher.slint:179
+#, c-format
+msgid "No applications match “{}”"
+msgstr ""
+
+#: launcher/launcher.slint:184
+msgid "Enter to open · right-click to pin to the dock · Esc to close"
+msgstr ""
+
+#: panel/audio-popup.slint:14
+msgid "OUTPUT"
+msgstr ""
+
+#: panel/audio-popup.slint:15
+msgid "No sound server (PipeWire or PulseAudio) is running."
+msgstr ""
+
+#: panel/audio-popup.slint:25
+msgid "Muted"
+msgstr ""
+
+#: panel/audio-popup.slint:32
+msgid "MICROPHONE"
+msgstr ""
+
+#: panel/audio-popup.slint:42
+msgid "DEVICES"
+msgstr ""
+
+#: panel/calendar-popup.slint:42 panel/calendar-popup.slint:43
+msgid "Mon"
+msgstr ""
+
+#: panel/calendar-popup.slint:42 panel/calendar-popup.slint:43
+msgid "Tue"
+msgstr ""
+
+#: panel/calendar-popup.slint:42 panel/calendar-popup.slint:43
+msgid "Wed"
+msgstr ""
+
+#: panel/calendar-popup.slint:42 panel/calendar-popup.slint:43
+msgid "Thu"
+msgstr ""
+
+#: panel/calendar-popup.slint:42 panel/calendar-popup.slint:43
+msgid "Fri"
+msgstr ""
+
+#: panel/calendar-popup.slint:42 panel/calendar-popup.slint:43
+msgid "Sat"
+msgstr ""
+
+#: panel/calendar-popup.slint:42 panel/calendar-popup.slint:43
+msgid "Sun"
+msgstr ""
+
+#: panel/calendar-popup.slint:70
+msgid "Back to today"
+msgstr ""
+
+#: panel/clipboard-popup.slint:15
+msgid "CLIPBOARD"
+msgstr ""
+
+#: panel/clipboard-popup.slint:17
+msgid "Clear"
+msgstr ""
+
+#: panel/clipboard-popup.slint:23
+msgid "Copied text appears here."
+msgstr ""
+
+#: panel/clipboard-popup.slint:23
+msgid "This compositor does not allow a clipboard history."
+msgstr ""
+
+#: panel/network-popup.slint:14
+msgid "NetworkManager is not running."
+msgstr ""
+
+#: panel/network-popup.slint:19
+msgid "Not connected"
+msgstr ""
+
+#: panel/network-popup.slint:20
+#, c-format
+msgid "Connected · signal {}%"
+msgstr ""
+
+#: panel/network-popup.slint:21
+msgid "Connected without internet access"
+msgstr ""
+
+#: panel/network-popup.slint:31
+msgid "BLUETOOTH"
+msgstr ""
+
+#: panel/network-popup.slint:32
+msgid "Bluetooth is off or not available."
+msgstr ""
+
+#: panel/network-popup.slint:38
+#, c-format
+msgid "{} connected"
+msgstr ""
+
+#: panel/network-popup.slint:46
+msgid "Paired"
+msgstr ""
+
+#: panel/tray-menu.slint:16
+msgid "Loading…"
+msgstr ""
+
+#: session/lock-screen.slint:108 session/polkit-dialog.slint:98
+msgid "Checking…"
+msgstr ""
+
+#: session/lock-screen.slint:108 session/polkit-dialog.slint:88
+msgid "Password"
+msgstr ""
+
+#: session/polkit-dialog.slint:54
+msgid "Authentication required"
+msgstr ""
+
+#: session/polkit-dialog.slint:59
+#, c-format
+msgid "Authenticating as {}"
+msgstr ""
+
+#: session/polkit-dialog.slint:96
+msgid "Cancel"
+msgstr ""
+
+#: session/polkit-dialog.slint:98
+msgid "Authenticate"
+msgstr ""
+
+#: session/power-menu.slint:28
+msgid "Click again"
+msgstr ""
+
+#: session/power-menu.slint:66
+msgid "Power"
+msgstr ""
+
+#: session/power-menu.slint:72 settings/settings.slint:214
+msgid "Lock"
+msgstr ""
+
+#: session/power-menu.slint:80
+msgid "Suspend"
+msgstr ""
+
+#: session/power-menu.slint:87
+msgid "Log out"
+msgstr ""
+
+#: session/power-menu.slint:88
+msgid "Restart"
+msgstr ""
+
+#: session/power-menu.slint:89
+msgid "Shut down"
+msgstr ""
+
+#: settings/settings.slint:80
+msgid "Mode"
+msgstr ""
+
+#: settings/settings.slint:81
+msgid "Follow the desktop, or always use the dark or light palette."
+msgstr ""
+
+#: settings/settings.slint:83
+msgid "Auto"
+msgstr ""
+
+#: settings/settings.slint:92
+msgid "Transparency"
+msgstr ""
+
+#: settings/settings.slint:92
+msgid "Translucent panels and popups."
+msgstr ""
+
+#: settings/settings.slint:94
+msgid "Animations"
+msgstr ""
+
+#: settings/settings.slint:97
+#, c-format
+msgid "PALETTE · {}"
+msgstr ""
+
+#: settings/settings.slint:106
+msgid "LunaDash"
+msgstr ""
+
+#: settings/settings.slint:107
+msgid "The default dark and light palettes"
+msgstr ""
+
+#: settings/settings.slint:138
+msgid "Wallpaper folder"
+msgstr ""
+
+#: settings/settings.slint:140
+msgid "Choose wallpaper"
+msgstr ""
+
+#: settings/settings.slint:143
+msgid "Desktop clock"
+msgstr ""
+
+#: settings/settings.slint:143
+msgid "A large clock on the wallpaper."
+msgstr ""
+
+#: settings/settings.slint:147 settings/settings.slint:283
+msgid "Panel & dock"
+msgstr ""
+
+#: settings/settings.slint:148
+msgid "Show the dock"
+msgstr ""
+
+#: settings/settings.slint:150
+msgid "24-hour clock"
+msgstr ""
+
+#: settings/settings.slint:152
+msgid "Show seconds"
+msgstr ""
+
+#: settings/settings.slint:154
+msgid "Weeks start on Monday"
+msgstr ""
+
+#: settings/settings.slint:157
+msgid "Pinned applications"
+msgstr ""
+
+#: settings/settings.slint:158
+#, c-format
+msgid "{} pinned. Right-click an application in the launcher or dock to pin or unpin it."
+msgstr ""
+
+#: settings/settings.slint:159
+msgid "Unpin all"
+msgstr ""
+
+#: settings/settings.slint:166
+msgid "Another notification daemon is running. Stop it to use LunaDash notifications."
+msgstr ""
+
+#: settings/settings.slint:170
+msgid "Pop-ups"
+msgstr ""
+
+#: settings/settings.slint:170
+msgid "Show new notifications in the corner."
+msgstr ""
+
+#: settings/settings.slint:172
+msgid "Only critical notifications pop up."
+msgstr ""
+
+#: settings/settings.slint:175
+msgid "Pop-up duration"
+msgstr ""
+
+#: settings/settings.slint:188 settings/settings.slint:285
+msgid "Power & lock"
+msgstr ""
+
+#: settings/settings.slint:190
+msgid "Lock after inactivity"
+msgstr ""
+
+#: settings/settings.slint:192
+msgid "Never"
+msgstr ""
+
+#: settings/settings.slint:202
+msgid "Lock before sleep"
+msgstr ""
+
+#: settings/settings.slint:212
+msgid "Keep the screen awake"
+msgstr ""
+
+#: settings/settings.slint:212
+msgid "Until LunaDash restarts."
+msgstr ""
+
+#: settings/settings.slint:214
+msgid "Lock now"
+msgstr ""
+
+#: settings/settings.slint:218 settings/settings.slint:286
+msgid "Language"
+msgstr ""
+
+#: settings/settings.slint:241 settings/settings.slint:287
+msgid "About"
+msgstr ""
+
+#: settings/settings.slint:248
+#, c-format
+msgid "Desktop shell written in Slint, running on SlintLu {}"
+msgstr ""
+
+#: settings/settings.slint:253
+msgid "System"
+msgstr ""
+
+#: settings/settings.slint:254
+msgid "Kernel"
+msgstr ""
+
+#: settings/settings.slint:255
+msgid "Host"
+msgstr ""
+
+#: settings/settings.slint:256
+msgid "Compositor"
+msgstr ""
+
+#: settings/settings.slint:257
+msgid "Renderer"
+msgstr ""
+
+#: settings/settings.slint:269
+msgid "Show welcome"
+msgstr ""
+
+#: settings/settings.slint:270
+msgid "Reload shell"
+msgstr ""
+
+#: wallpaper/gallery.slint:113
+msgid "LunaDash default"
+msgstr ""
+
+#: wallpaper/gallery.slint:137
+#, c-format
+msgid "No images in {}. Choose another folder above."
+msgstr ""
+
+#: welcome/welcome.slint:53
+msgid "Welcome to LunaDash"
+msgstr ""
+
+#: welcome/welcome.slint:54
+msgid "Here is how to get around."
+msgstr ""
+
+#: welcome/welcome.slint:57
+msgid "Launcher"
+msgstr ""
+
+#: welcome/welcome.slint:57
+msgid "Press Super or click the apps button in the dock."
+msgstr ""
+
+#: welcome/welcome.slint:57
+msgid "Click the diamond in the panel or the apps button in the dock."
+msgstr ""
+
+#: welcome/welcome.slint:58
+msgid "Click the moon in the panel for quick settings, media, performance and notifications."
+msgstr ""
+
+#: welcome/welcome.slint:59
+msgid "Dock"
+msgstr ""
+
+#: welcome/welcome.slint:59
+msgid "Right-click applications in the launcher or dock to pin them."
+msgstr ""
+
+#: welcome/welcome.slint:60
+msgid "Change the theme, wallpaper, language and lock behaviour."
+msgstr ""
+
+#: welcome/welcome.slint:65
+msgid "Open settings"
+msgstr ""
+
+#: welcome/welcome.slint:66
+msgid "Get started"
+msgstr ""

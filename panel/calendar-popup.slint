@@ -1,0 +1,76 @@
+// The calendar under the clock.
+
+import { Clock } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { Prefs } from "../state/prefs.slint";
+import { Time } from "../state/time.slint";
+import { PanelPopup } from "popup.slint";
+import { IconButton } from "../components/controls.slint";
+
+export component CalendarPopup inherits PanelPopup {
+    name: "calendar";
+    namespace: "lunadash-calendar";
+    preferred-width: 360px;
+
+    // Months away from today (0 = this month).
+    property <int> offset;
+    property <int> month-index: Clock.year * 12 + Clock.month - 1 + root.offset;
+    property <int> shown-year: Math.floor(root.month-index / 12);
+    property <int> shown-month: Math.mod(root.month-index, 12) + 1;
+    changed shown => { root.offset = 0; }
+
+    VerticalLayout {
+        spacing: 2px;
+        Text { text: Clock.format-date(Clock.year, Clock.month, Clock.day, "%A"); color: Style.accent; font-size: Style.font-small; }
+        Text { text: Clock.format-date(Clock.year, Clock.month, Clock.day, "%e %B %Y"); color: Style.text; font-size: 22px; font-weight: 600; }
+        Text { text: Time.clock; color: Style.muted; font-size: Style.font-size; }
+    }
+    HorizontalLayout {
+        IconButton { icon: "chevron-left"; clicked => { root.offset -= 1; } }
+        Text {
+            horizontal-stretch: 1;
+            text: Clock.format-date(root.shown-year, root.shown-month, 1, "%B %Y");
+            color: Style.text;
+            font-size: Style.font-size + 1px;
+            font-weight: 600;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+        IconButton { icon: "chevron-right"; clicked => { root.offset += 1; } }
+    }
+    HorizontalLayout {
+        for day[i] in (Prefs.week-starts-monday ? [@tr("Mon"), @tr("Tue"), @tr("Wed"), @tr("Thu"), @tr("Fri"), @tr("Sat"), @tr("Sun")]
+                : [@tr("Sun"), @tr("Mon"), @tr("Tue"), @tr("Wed"), @tr("Thu"), @tr("Fri"), @tr("Sat")]): Text {
+            text: day;
+            color: Style.muted;
+            font-size: Style.font-small;
+            horizontal-alignment: center;
+            horizontal-stretch: 1;
+        }
+    }
+    GridLayout {
+        spacing: 2px;
+        for day[i] in Clock.month-grid(root.shown-year, root.shown-month, Prefs.week-starts-monday): Rectangle {
+            row: i / 7;
+            col: Math.mod(i, 7);
+            height: 38px;
+            border-radius: Style.radius-small;
+            background: day.today ? Style.accent : transparent;
+            Text {
+                text: day.day;
+                color: day.today ? Style.accent-ink : !day.in-month ? Style.muted.with-alpha(0.45) : day.weekend ? Style.muted : Style.text;
+                font-size: Style.font-size;
+                font-weight: day.today ? 700 : 400;
+            }
+        }
+    }
+    if root.offset != 0: HorizontalLayout {
+        alignment: center;
+        Text {
+            text: @tr("Back to today");
+            color: Style.accent;
+            font-size: Style.font-small;
+            TouchArea { clicked => { root.offset = 0; } }
+        }
+    }
+}

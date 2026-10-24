@@ -1,0 +1,285 @@
+// Small controls shared by every part of the shell.
+
+import { Style } from "../style/style.slint";
+import { Icon } from "icon.slint";
+
+// A translucent capsule grouping panel items.
+export component Pill inherits Rectangle {
+    height: Style.pill-height;
+    border-radius: self.height / 2;
+    background: Style.glass;
+    border-width: 1px;
+    border-color: Style.hairline;
+}
+
+// A round button with an icon, optionally highlighted.
+export component IconButton inherits Rectangle {
+    in property <string> icon;
+    in property <bool> active;
+    in property <color> tint: root.active ? Style.accent-ink : Style.text;
+    in property <length> size: 28px;
+    in property <length> icon-size: 17px;
+    out property <bool> hovered: touch.has-hover;
+    callback clicked();
+    callback right-clicked();
+    callback scrolled(delta: length);
+
+    width: root.size;
+    height: root.size;
+    border-radius: root.size / 2;
+    background: root.active ? Style.accent : touch.pressed ? Style.elevated : touch.has-hover ? Style.hover.with-alpha(0.7) : transparent;
+    animate background { duration: Style.motion-fast; }
+    Icon {
+        name: root.icon;
+        color: root.tint;
+        width: root.icon-size;
+        height: root.icon-size;
+    }
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+        pointer-event(event) => {
+            if event.kind == PointerEventKind.down && event.button == PointerEventButton.right {
+                root.right-clicked();
+            }
+        }
+        scroll-event(event) => {
+            root.scrolled(event.delta-y);
+            accept
+        }
+    }
+}
+
+// A text button; `primary` uses the accent colour.
+export component TextButton inherits Rectangle {
+    in property <string> text;
+    in property <string> icon;
+    in property <bool> primary;
+    in property <bool> danger;
+    in property <bool> enabled: true;
+    callback clicked();
+
+    height: 34px;
+    preferred-width: content.preferred-width + 28px;
+    border-radius: Style.radius-small;
+    background: !root.enabled ? Style.surface.with-alpha(0.5)
+        : root.primary ? (touch.has-hover ? Style.accent.brighter(0.12) : Style.accent)
+        : root.danger ? (touch.has-hover ? Style.danger.with-alpha(0.32) : Style.danger.with-alpha(0.2))
+        : touch.has-hover ? Style.hover : Style.elevated;
+    animate background { duration: Style.motion-fast; }
+    content := HorizontalLayout {
+        alignment: center;
+        spacing: 6px;
+        padding-left: 14px;
+        padding-right: 14px;
+        if root.icon != "": Icon {
+            name: root.icon;
+            width: 16px;
+            height: 16px;
+            y: (parent.height - self.height) / 2;
+            color: root.primary ? Style.accent-ink : Style.text;
+        }
+        Text {
+            text: root.text;
+            color: root.primary ? Style.accent-ink : root.danger ? Style.danger : Style.text;
+            font-size: Style.font-size;
+            vertical-alignment: center;
+        }
+    }
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => { root.clicked(); }
+    }
+}
+
+// An on / off switch.
+export component Switch inherits Rectangle {
+    in property <bool> on;
+    callback toggled();
+
+    width: 42px;
+    height: 24px;
+    border-radius: self.height / 2;
+    background: root.on ? Style.accent : Style.elevated;
+    border-width: root.on ? 0 : 1px;
+    border-color: Style.border;
+    animate background { duration: Style.motion-fast; }
+    Rectangle {
+        width: 18px;
+        height: 18px;
+        border-radius: 9px;
+        x: root.on ? parent.width - self.width - 3px : 3px;
+        background: root.on ? Style.accent-ink : Style.muted;
+        animate x { duration: Style.motion-fast; easing: ease-out; }
+    }
+    TouchArea { clicked => { root.toggled(); } }
+}
+
+// A horizontal slider for values in 0..1 (or up to `maximum`).
+export component Slider inherits Rectangle {
+    in property <float> value;
+    in property <float> maximum: 1.0;
+    in property <string> icon;
+    callback changed(value: float);
+    callback icon-clicked();
+
+    height: 36px;
+    HorizontalLayout {
+        spacing: 10px;
+        if root.icon != "": IconButton {
+            icon: root.icon;
+            size: 32px;
+            y: (parent.height - self.height) / 2;
+            clicked => { root.icon-clicked(); }
+        }
+        track := Rectangle {
+            property <float> ratio: clamp(root.value / root.maximum, 0, 1);
+            Rectangle {
+                height: 8px;
+                border-radius: 4px;
+                background: Style.elevated;
+                Rectangle {
+                    x: 0;
+                    width: parent.width * track.ratio;
+                    border-radius: 4px;
+                    background: Style.accent;
+                }
+            }
+            Rectangle {
+                width: 18px;
+                height: 18px;
+                border-radius: 9px;
+                x: (parent.width - self.width) * track.ratio;
+                background: Style.accent;
+                border-width: 3px;
+                border-color: Style.base;
+            }
+            TouchArea {
+                pointer-event(event) => {
+                    if event.kind == PointerEventKind.down || (event.kind == PointerEventKind.move && self.pressed) {
+                        root.changed(clamp(self.mouse-x / self.width, 0, 1) * root.maximum);
+                    }
+                }
+                scroll-event(event) => {
+                    root.changed(clamp(root.value + (event.delta-y > 0 ? 0.05 : -0.05) * root.maximum, 0, root.maximum));
+                    accept
+                }
+            }
+        }
+    }
+}
+
+// A quick-settings tile: icon, label, state line; highlighted when on.
+export component QuickToggle inherits Rectangle {
+    in property <string> icon;
+    in property <string> label;
+    in property <string> detail;
+    in property <bool> on;
+    in property <bool> enabled: true;
+    callback clicked();
+
+    height: 58px;
+    border-radius: Style.radius-medium;
+    background: root.on ? Style.accent : touch.has-hover ? Style.hover : Style.surface;
+    opacity: root.enabled ? 1 : 0.5;
+    animate background { duration: Style.motion-fast; }
+    HorizontalLayout {
+        padding-left: 14px;
+        padding-right: 12px;
+        spacing: 10px;
+        Icon {
+            name: root.icon;
+            width: 20px;
+            height: 20px;
+            y: (parent.height - self.height) / 2;
+            color: root.on ? Style.accent-ink : Style.text;
+        }
+        VerticalLayout {
+            alignment: center;
+            Text {
+                text: root.label;
+                font-size: Style.font-size;
+                font-weight: 600;
+                color: root.on ? Style.accent-ink : Style.text;
+                overflow: elide;
+            }
+            if root.detail != "": Text {
+                text: root.detail;
+                font-size: Style.font-small;
+                color: root.on ? Style.accent-ink.with-alpha(0.75) : Style.muted;
+                overflow: elide;
+            }
+        }
+    }
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => { root.clicked(); }
+    }
+}
+
+// A rounded card on popups and the dashboard.
+export component Card inherits Rectangle {
+    border-radius: Style.radius-medium;
+    background: Style.surface;
+    border-width: 1px;
+    border-color: Style.hairline;
+}
+
+// The frame of popups and overlays.
+export component Surface inherits Rectangle {
+    border-radius: Style.radius;
+    background: Style.glass-strong;
+    border-width: 1px;
+    border-color: Style.border;
+    drop-shadow-blur: 24px;
+    drop-shadow-color: #00000055;
+    drop-shadow-offset-y: 6px;
+}
+
+// A small heading inside popups and pages.
+export component SectionTitle inherits Text {
+    color: Style.muted;
+    font-size: Style.font-small;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+}
+
+// A row with an icon, two lines of text and optional trailing content.
+export component ListRow inherits Rectangle {
+    in property <string> icon;
+    in property <image> image;
+    in property <string> title;
+    in property <string> subtitle;
+    in property <bool> selected;
+    callback clicked();
+
+    height: 48px;
+    border-radius: Style.radius-small;
+    background: root.selected ? Style.accent-soft : touch.has-hover ? Style.hover.with-alpha(0.6) : transparent;
+    HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 12px;
+        if root.icon != "": Icon {
+            name: root.icon;
+            width: 20px;
+            height: 20px;
+            y: (parent.height - self.height) / 2;
+            color: root.selected ? Style.accent : Style.text;
+        }
+        if root.icon == "": Image {
+            source: root.image;
+            width: 28px;
+            height: 28px;
+            y: (parent.height - self.height) / 2;
+            image-fit: contain;
+        }
+        VerticalLayout {
+            alignment: center;
+            horizontal-stretch: 1;
+            Text { text: root.title; color: Style.text; font-size: Style.font-size; overflow: elide; }
+            if root.subtitle != "": Text { text: root.subtitle; color: Style.muted; font-size: Style.font-small; overflow: elide; }
+        }
+        @children
+    }
+    touch := TouchArea { clicked => { root.clicked(); } }
+}

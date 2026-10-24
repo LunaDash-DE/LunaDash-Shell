@@ -1,0 +1,23 @@
+// Applies the stored preferences to SlintLu's shell-wide services.
+
+import { Theme, Idle, Session, Notifications, I18n } from "@slintlu";
+import { Prefs } from "prefs.slint";
+
+// Applies the stored preferences to the shell-wide services (once, from the primary screen).
+export global Apply {
+    public function theme() {
+        Theme.set-mode(Prefs.theme-mode);
+        if Prefs.palette != "" {
+            Theme.set-palette(Prefs.palette);
+        }
+    }
+    public function all() {
+        root.theme();
+        Idle.set-lock-after(Prefs.lock-after-minutes * 60s);
+        Session.set-lock-before-sleep(Prefs.lock-before-sleep);
+        Notifications.set-default-timeout(Prefs.toast-seconds * 1s);
+        if Prefs.language != "" {
+            I18n.set-language(Prefs.language);
+        }
+    }
+}

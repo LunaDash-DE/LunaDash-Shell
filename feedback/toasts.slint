@@ -1,0 +1,80 @@
+// Notification pop-ups in the top-right corner.
+
+import { PanelWindow, Layer, ExclusiveMode, Notifications } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { Prefs } from "../state/prefs.slint";
+import { UI } from "../state/ui.slint";
+import { Icon } from "../components/icon.slint";
+import { IconButton, TextButton } from "../components/controls.slint";
+
+export component Toasts inherits PanelWindow {
+    namespace: "lunadash-notifications";
+    layer: Layer.overlay;
+    exclusive-mode: ExclusiveMode.normal;
+    anchor-top: true;
+    anchor-right: true;
+    margin-top: 8px;
+    margin-right: 10px;
+    shown: Prefs.toasts && Notifications.popups.length > 0 && UI.on-active-screen && UI.overlay == "";
+    preferred-width: 380px;
+    preferred-height: column.preferred-height;
+    default-font-family: Style.font;
+
+    column := VerticalLayout {
+        spacing: Style.spacing-sm;
+        for n in Notifications.popups: Rectangle {
+            height: row.preferred-height;
+            border-radius: Style.radius-medium;
+            background: Style.glass-strong;
+            border-width: 1px;
+            border-color: n.urgency == "critical" ? Style.danger : Style.hairline;
+            touch := TouchArea {
+                clicked => {
+                    Notifications.invoke(n.id, "default");
+                    Notifications.dismiss(n.id);
+                }
+            }
+            row := HorizontalLayout {
+                padding: Style.spacing-md;
+                spacing: Style.spacing-md;
+                Rectangle {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: Style.radius-small;
+                    clip: true;
+                    background: Style.elevated;
+                    Image {
+                        width: n.image.width > 0 ? parent.width : 26px;
+                        height: n.image.width > 0 ? parent.height : 26px;
+                        source: n.image.width > 0 ? n.image : n.icon;
+                        image-fit: n.image.width > 0 ? cover : contain;
+                    }
+                    if n.image.width == 0 && n.icon.width == 0: Icon { name: "bell"; width: 20px; height: 20px; color: Style.accent; }
+                }
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    spacing: 2px;
+                    HorizontalLayout {
+                        Text { text: n.app-name; color: Style.accent; font-size: Style.font-small; horizontal-stretch: 1; overflow: elide; }
+                        Text { text: n.time; color: Style.muted; font-size: Style.font-small; }
+                    }
+                    Text { text: n.summary; color: Style.text; font-weight: 600; wrap: word-wrap; }
+                    if n.body != "": Text { text: n.body; color: Style.muted; wrap: word-wrap; max-height: 80px; overflow: elide; }
+                    if n.actions.length > 0: HorizontalLayout {
+                        spacing: 6px;
+                        alignment: start;
+                        padding-top: 4px;
+                        for action in n.actions: TextButton {
+                            text: action.label;
+                            clicked => {
+                                Notifications.invoke(n.id, action.key);
+                                Notifications.dismiss(n.id);
+                            }
+                        }
+                    }
+                }
+                IconButton { icon: "close"; size: 24px; icon-size: 12px; clicked => { Notifications.dismiss(n.id); } }
+            }
+        }
+    }
+}

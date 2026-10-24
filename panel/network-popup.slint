@@ -1,0 +1,54 @@
+// Network connection and Bluetooth devices.
+
+import { Network, Bluetooth } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { PanelPopup } from "popup.slint";
+import { QuickToggle, SectionTitle, ListRow, TextButton } from "../components/controls.slint";
+
+export component NetworkPopup inherits PanelPopup {
+    name: "network";
+    namespace: "lunadash-network";
+    preferred-width: 360px;
+
+    SectionTitle { text: @tr("NETWORK"); }
+    if !Network.available: Text { text: @tr("NetworkManager is not running."); color: Style.muted; wrap: word-wrap; }
+    if Network.available: VerticalLayout {
+        spacing: 8px;
+        ListRow {
+            icon: !Network.connected ? "wifi-off" : Network.kind == "wifi" ? "wifi" : "ethernet";
+            title: Network.connected ? Network.name : @tr("Not connected");
+            subtitle: !Network.connected ? "" : Network.online ? (Network.kind == "wifi" ? @tr("Connected · signal {}%", Math.round(Network.strength * 100)) : @tr("Connected"))
+                : @tr("Connected without internet access");
+        }
+        QuickToggle {
+            icon: Network.wifi-enabled ? "wifi" : "wifi-off";
+            label: @tr("Wi-Fi");
+            detail: Network.wifi-enabled ? @tr("On") : @tr("Off");
+            on: Network.wifi-enabled;
+            clicked => { Network.set-wifi-enabled(!Network.wifi-enabled); }
+        }
+    }
+    SectionTitle { text: @tr("BLUETOOTH"); }
+    if !Bluetooth.available: Text { text: @tr("Bluetooth is off or not available."); color: Style.muted; wrap: word-wrap; }
+    if Bluetooth.available: VerticalLayout {
+        spacing: 6px;
+        QuickToggle {
+            icon: "bluetooth";
+            label: @tr("Bluetooth");
+            detail: !Bluetooth.powered ? @tr("Off") : Bluetooth.connected-count > 0 ? @tr("{} connected", Bluetooth.connected-count) : @tr("On");
+            on: Bluetooth.powered;
+            clicked => { Bluetooth.set-powered(!Bluetooth.powered); }
+        }
+        if Bluetooth.powered: VerticalLayout {
+            for device in Bluetooth.devices: ListRow {
+                icon: "bluetooth";
+                title: device.name;
+                subtitle: (device.connected ? @tr("Connected") : @tr("Paired")) + (device.battery >= 0 ? " · " + Math.round(device.battery * 100) + "%" : "");
+                selected: device.connected;
+                clicked => {
+                    if device.connected { Bluetooth.disconnect(device.path); } else { Bluetooth.connect(device.path); }
+                }
+            }
+        }
+    }
+}

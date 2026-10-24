@@ -1,0 +1,106 @@
+// The polkit authentication dialog ("an application wants administrator rights").
+
+import { PanelWindow, Layer, KeyboardMode, ExclusiveMode, Polkit, Icons } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { UI } from "../state/ui.slint";
+import { Icon } from "../components/icon.slint";
+import { Surface, TextButton } from "../components/controls.slint";
+
+export component PolkitDialog inherits PanelWindow {
+    namespace: "lunadash-polkit";
+    layer: Layer.overlay;
+    keyboard-mode: KeyboardMode.exclusive;
+    exclusive-mode: ExclusiveMode.ignore;
+    anchor-top: true;
+    anchor-bottom: true;
+    anchor-left: true;
+    anchor-right: true;
+    shown: Polkit.active && UI.on-active-screen;
+    default-font-family: Style.font;
+
+    changed shown => {
+        answer.text = "";
+        if self.shown { answer.focus(); }
+    }
+    property <string> error: Polkit.error;
+    changed error => { answer.text = ""; }
+
+    Rectangle { background: Style.scrim; }
+    Surface {
+        width: 440px;
+        height: content.preferred-height;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        content := VerticalLayout {
+            padding: Style.spacing-xl;
+            spacing: Style.spacing-md;
+            HorizontalLayout {
+                spacing: Style.spacing-md;
+                Rectangle {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 24px;
+                    background: Style.accent-soft;
+                    Image {
+                        width: 28px;
+                        height: 28px;
+                        source: Icons.lookup(Polkit.icon-name, 28);
+                        visible: Polkit.icon-name != "";
+                    }
+                    if Polkit.icon-name == "": Icon { name: "lock"; width: 24px; height: 24px; color: Style.accent; }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    Text { text: @tr("Authentication required"); color: Style.text; font-size: Style.font-title; font-weight: 600; }
+                    Text { text: Polkit.action-id; color: Style.muted; font-size: Style.font-small; overflow: elide; }
+                }
+            }
+            Text { text: Polkit.message; color: Style.text; wrap: word-wrap; }
+            Text { text: @tr("Authenticating as {}", Polkit.user); color: Style.muted; font-size: Style.font-small; }
+            Rectangle {
+                height: 42px;
+                border-radius: Style.radius-small;
+                background: Style.elevated;
+                border-width: 1px;
+                border-color: Polkit.error != "" ? Style.danger : answer.has-focus ? Style.accent : Style.border;
+                answer := TextInput {
+                    x: 14px;
+                    width: parent.width - 28px;
+                    height: 100%;
+                    vertical-alignment: center;
+                    single-line: true;
+                    input-type: Polkit.echo ? InputType.text : InputType.password;
+                    color: Style.text;
+                    enabled: !Polkit.authenticating;
+                    accepted => { Polkit.respond(self.text); }
+                    key-pressed(event) => {
+                        if event.text == Key.Escape {
+                            Polkit.cancel();
+                            return accept;
+                        }
+                        reject
+                    }
+                }
+                if answer.text == "": Text {
+                    x: 14px;
+                    height: 100%;
+                    vertical-alignment: center;
+                    text: Polkit.prompt != "" ? Polkit.prompt : @tr("Password");
+                    color: Style.muted;
+                }
+            }
+            if Polkit.error != "": Text { text: Polkit.error; color: Style.danger; wrap: word-wrap; }
+            HorizontalLayout {
+                alignment: end;
+                spacing: Style.spacing-sm;
+                TextButton { text: @tr("Cancel"); clicked => { Polkit.cancel(); } }
+                TextButton {
+                    text: Polkit.authenticating ? @tr("Checking…") : @tr("Authenticate");
+                    primary: true;
+                    enabled: !Polkit.authenticating;
+                    clicked => { Polkit.respond(answer.text); }
+                }
+            }
+        }
+    }
+}

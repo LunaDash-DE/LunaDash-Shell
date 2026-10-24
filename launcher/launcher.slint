@@ -1,0 +1,194 @@
+// The application launcher: type to search, arrows to move, Enter to start.
+
+import { Apps, AppInfo, Store } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { UI } from "../state/ui.slint";
+import { Prefs } from "../state/prefs.slint";
+import { Overlay } from "../components/overlay.slint";
+import { Icon } from "../components/icon.slint";
+
+component AppTile inherits Rectangle {
+    in property <image> icon;
+    in property <string> name;
+    in property <bool> selected;
+    in property <bool> pinned;
+    callback clicked();
+    callback pin();
+    border-radius: Style.radius-medium;
+    background: root.selected ? Style.accent-soft : touch.has-hover ? Style.hover.with-alpha(0.6) : transparent;
+    border-width: root.selected ? 1px : 0;
+    border-color: Style.accent.with-alpha(0.5);
+    animate background { duration: Style.motion-fast; }
+    VerticalLayout {
+        padding: 10px;
+        spacing: 8px;
+        alignment: center;
+        Image {
+            source: root.icon;
+            width: 52px;
+            height: 52px;
+            x: (parent.width - self.width) / 2;
+            image-fit: contain;
+        }
+        Text {
+            text: root.name;
+            color: Style.text;
+            font-size: Style.font-small;
+            horizontal-alignment: center;
+            overflow: elide;
+        }
+    }
+    if root.pinned: Rectangle {
+        x: parent.width - 16px;
+        y: 8px;
+        width: 7px;
+        height: 7px;
+        border-radius: 3.5px;
+        background: Style.accent;
+    }
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+        pointer-event(event) => {
+            if event.kind == PointerEventKind.down && event.button == PointerEventButton.right {
+                root.pin();
+            }
+        }
+    }
+}
+
+export component Launcher inherits Overlay {
+    name: "launcher";
+    namespace: "lunadash-launcher";
+    content-width: 820px;
+    content-height: 580px;
+
+    property <string> query;
+    property <int> selected: 0;
+    property <int> columns: 6;
+    // Mentioning Apps.all refreshes the results when the background scan finishes.
+    property <[AppInfo]> results: Apps.all.length >= 0 ? Apps.search(root.query, 48) : [];
+
+    function launch(id: string) {
+        Apps.launch(id);
+        UI.close-all();
+    }
+    changed shown => {
+        if self.shown {
+            search.text = "";
+            root.query = "";
+            root.selected = 0;
+            search.focus();
+        }
+    }
+
+    VerticalLayout {
+        padding: Style.spacing-xl;
+        spacing: Style.spacing-lg;
+        Rectangle {
+            height: 52px;
+            border-radius: 26px;
+            background: Style.elevated;
+            border-width: 1px;
+            border-color: search.has-focus ? Style.accent.with-alpha(0.6) : Style.border;
+            HorizontalLayout {
+                padding-left: 20px;
+                padding-right: 20px;
+                spacing: 12px;
+                Icon { name: "search"; width: 20px; height: 20px; y: (parent.height - self.height) / 2; color: Style.muted; }
+                Rectangle {
+                    search := TextInput {
+                        width: 100%;
+                        height: 100%;
+                        vertical-alignment: center;
+                        color: Style.text;
+                        font-size: 17px;
+                        single-line: true;
+                        edited => {
+                            root.query = self.text;
+                            root.selected = 0;
+                        }
+                        accepted => {
+                            if root.results.length > 0 {
+                                root.launch(root.results[root.selected].id);
+                            }
+                        }
+                        key-pressed(event) => {
+                            if event.text == Key.DownArrow {
+                                root.selected = min(root.results.length - 1, root.selected + root.columns);
+                                return accept;
+                            }
+                            if event.text == Key.UpArrow {
+                                root.selected = max(0, root.selected - root.columns);
+                                return accept;
+                            }
+                            if event.text == Key.RightArrow && self.cursor-position-byte-offset >= self.text.character-count {
+                                root.selected = min(root.results.length - 1, root.selected + 1);
+                                return accept;
+                            }
+                            if event.text == Key.LeftArrow && root.selected > 0 && self.text == "" {
+                                root.selected -= 1;
+                                return accept;
+                            }
+                            if event.text == Key.Escape {
+                                UI.close-all();
+                                return accept;
+                            }
+                            reject
+                        }
+                    }
+                    if search.text == "": Text {
+                        width: 100%;
+                        height: 100%;
+                        vertical-alignment: center;
+                        text: @tr("Search applications");
+                        color: Style.muted;
+                        font-size: 17px;
+                    }
+                }
+            }
+        }
+        Text {
+            text: root.query == "" ? @tr("Frequently used") : @tr("{} results", root.results.length);
+            color: Style.muted;
+            font-size: Style.font-small;
+        }
+        Flickable {
+            vertical-stretch: 1;
+            property <length> tile: self.width / root.columns;
+            content-height: Math.ceil(root.results.length / root.columns) * self.tile * 1.0;
+            for app[i] in root.results: AppTile {
+                x: Math.mod(i, root.columns) * parent.tile;
+                y: Math.floor(i / root.columns) * parent.tile;
+                width: parent.tile - 6px;
+                height: parent.tile - 6px;
+                icon: app.icon;
+                name: app.name;
+                selected: i == root.selected;
+                pinned: root.is-pinned(app.id);
+                clicked => { root.launch(app.id); }
+                pin => {
+                    if root.is-pinned(app.id) {
+                        Store.list-remove("dock-pinned", app.id);
+                    } else {
+                        Store.list-add("dock-pinned", app.id);
+                    }
+                }
+            }
+        }
+        if root.results.length == 0 && root.query != "": Text {
+            text: @tr("No applications match “{}”", root.query);
+            color: Style.muted;
+            horizontal-alignment: center;
+        }
+        Text {
+            text: @tr("Enter to open · right-click to pin to the dock · Esc to close");
+            color: Style.muted;
+            font-size: Style.font-small;
+            horizontal-alignment: center;
+        }
+    }
+
+    pure function is-pinned(id: string) -> bool {
+        Store.list-contains("dock-pinned", id, Store.revision)
+    }
+}

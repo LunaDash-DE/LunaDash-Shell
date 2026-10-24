@@ -1,0 +1,92 @@
+// The power menu. Destructive actions ask for a second click.
+
+import { Power, Session } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { UI } from "../state/ui.slint";
+import { Overlay } from "../components/overlay.slint";
+import { Icon } from "../components/icon.slint";
+
+component PowerButton inherits Rectangle {
+    in property <string> icon;
+    in property <string> label;
+    in property <bool> armed;
+    in property <bool> enabled: true;
+    callback clicked();
+    width: 128px;
+    height: 132px;
+    border-radius: Style.radius-medium;
+    opacity: root.enabled ? 1 : 0.4;
+    background: root.armed ? Style.danger : touch.has-hover ? Style.hover : Style.elevated;
+    border-width: 1px;
+    border-color: root.armed ? Style.danger : Style.border;
+    animate background { duration: Style.motion-fast; }
+    VerticalLayout {
+        alignment: center;
+        spacing: 12px;
+        Icon { name: root.icon; width: 34px; height: 34px; x: (parent.width - self.width) / 2; color: root.armed ? #ffffff : Style.text; }
+        Text {
+            text: root.armed ? @tr("Click again") : root.label;
+            color: root.armed ? #ffffff : Style.text;
+            horizontal-alignment: center;
+        }
+    }
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => { root.clicked(); }
+    }
+}
+
+export component PowerMenu inherits Overlay {
+    name: "power";
+    namespace: "lunadash-power";
+    content-width: 760px;
+    content-height: 260px;
+
+    property <string> armed;
+    changed shown => { root.armed = ""; }
+
+    function confirm(action: string) {
+        if root.armed != action {
+            root.armed = action;
+            return;
+        }
+        UI.close-all();
+        if action == "logout" {
+            Power.log-out();
+        } else if action == "reboot" {
+            Power.reboot();
+        } else if action == "poweroff" {
+            Power.power-off();
+        }
+    }
+
+    VerticalLayout {
+        padding: Style.spacing-xl;
+        spacing: Style.spacing-lg;
+        Text { text: @tr("Power"); color: Style.text; font-size: Style.font-title; font-weight: 600; }
+        HorizontalLayout {
+            spacing: Style.spacing-md;
+            alignment: center;
+            PowerButton {
+                icon: "lock";
+                label: @tr("Lock");
+                clicked => {
+                    UI.close-all();
+                    Session.lock();
+                }
+            }
+            PowerButton {
+                icon: "sleep";
+                label: @tr("Suspend");
+                enabled: Power.can-suspend;
+                clicked => {
+                    UI.close-all();
+                    Power.suspend();
+                }
+            }
+            PowerButton { icon: "logout"; label: @tr("Log out"); armed: root.armed == "logout"; clicked => { root.confirm("logout"); } }
+            PowerButton { icon: "reboot"; label: @tr("Restart"); armed: root.armed == "reboot"; enabled: Power.available; clicked => { root.confirm("reboot"); } }
+            PowerButton { icon: "power"; label: @tr("Shut down"); armed: root.armed == "poweroff"; enabled: Power.available; clicked => { root.confirm("poweroff"); } }
+        }
+    }
+}

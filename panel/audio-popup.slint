@@ -1,0 +1,50 @@
+// Volume, microphone and output devices.
+
+import { Audio } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { PanelPopup } from "popup.slint";
+import { Slider, SectionTitle, ListRow } from "../components/controls.slint";
+import { Icon } from "../components/icon.slint";
+
+export component AudioPopup inherits PanelPopup {
+    name: "audio";
+    namespace: "lunadash-audio";
+    preferred-width: 360px;
+
+    SectionTitle { text: @tr("OUTPUT"); }
+    if !Audio.available: Text { text: @tr("No sound server (PipeWire or PulseAudio) is running."); color: Style.muted; wrap: word-wrap; }
+    Text { text: Audio.output.description; color: Style.text; overflow: elide; }
+    if Audio.available: Slider {
+        icon: Audio.output.muted ? "volume-mute" : "volume";
+        value: Audio.output.volume;
+        maximum: 1.5;
+        changed(v) => { Audio.set-volume(v); }
+        icon-clicked => { Audio.toggle-muted(); }
+    }
+    if Audio.available: Text {
+        text: Audio.output.muted ? @tr("Muted") : Math.round(Audio.output.volume * 100) + "%";
+        color: Style.muted;
+        font-size: Style.font-small;
+        horizontal-alignment: right;
+    }
+    if Audio.input.name != "": VerticalLayout {
+        spacing: 6px;
+        SectionTitle { text: @tr("MICROPHONE"); }
+        Slider {
+            icon: Audio.input.muted ? "volume-mute" : "mic";
+            value: Audio.input.volume;
+            changed(v) => { Audio.set-input-volume(v); }
+            icon-clicked => { Audio.toggle-input-muted(); }
+        }
+    }
+    if Audio.outputs.length > 1: VerticalLayout {
+        spacing: 4px;
+        SectionTitle { text: @tr("DEVICES"); }
+        for device in Audio.outputs: ListRow {
+            icon: "volume";
+            title: device.description;
+            selected: device.name == Audio.output.name;
+            clicked => { Audio.set-default-output(device.name); }
+        }
+    }
+}

@@ -5,34 +5,74 @@ on:
   pull_request:
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  BUILD_PACKAGES: pkg-config libwayland-dev libxkbcommon-dev libfontconfig-dev libpam0g-dev
 jobs:
-  qml:
+  installer:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Install Qt Quick checks
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qt6-declarative-dev-tools libqt6svg6 qml6-module-qttest \
-            qml6-module-qtquick-controls qml6-module-qtquick-layouts \
-            qml6-module-qtquick-window qml6-module-qtquick-templates \
-            qml6-module-qtquick-shapes qml6-module-qtqml-workerscript
-      - name: Parse all QML
-        run: |
-          while IFS= read -r -d '' file; do
-            /usr/lib/qt6/bin/qmlformat "$file" >/dev/null
-          done < <(find . -type f -name '*.qml' -print0)
-      - name: Run Shell UI tests
-        run: |
-          QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software QML_XHR_ALLOW_FILE_READ=1 \
-            /usr/lib/qt6/bin/qmltestrunner -input tests/qml
       - name: Installer syntax and preview
         run: |
           bash -n install.sh
           ./install.sh --prefix "$RUNNER_TEMP/lunadash-prefix" --dry-run
           ./install.sh --prefix /usr --destdir "$RUNNER_TEMP/lunadash-stage"
-          test -r "$RUNNER_TEMP/lunadash-stage/usr/share/lunadash/shell/shell.qml"
-          test ! -e "$RUNNER_TEMP/lunadash-stage/usr/share/lunadash/shell/tests"
+          stage="$RUNNER_TEMP/lunadash-stage/usr"
+          test -r "$stage/share/lunadash/shell/shell.slint"
+          test -r "$stage/share/lunadash/shell/i18n/zh_TW.po"
+          test -r "$stage/share/lunadash/shell/assets/wallpapers/florist.png"
+          test -x "$stage/bin/lunadash-shell"
+          test ! -e "$stage/share/lunadash/shell/scripts"
+      - name: Translations are up to date
+        run: |
+          python3 scripts/extract-tr.py
+          git diff --exit-code i18n
+
+  slintlu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: ${{ env.BUILD_PACKAGES }} sway grim dbus libnotify-bin fonts-noto-cjk fonts-dejavu-core
+          version: shell-1
+      - name: Latest SlintLu revision
+        id: slintlu
+        run: echo "rev=$(git ls-remote https://github.com/LunaDash-DE/SlintLu.git refs/heads/main | cut -f1)" >> "$GITHUB_OUTPUT"
+      - name: Cache SlintLu
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/slintlu
+          key: slintlu-${{ runner.os }}-${{ steps.slintlu.outputs.rev }}
+      - uses: dtolnay/rust-toolchain@stable
+        if: steps.cache.outputs.cache-hit != 'true'
+      - name: Build SlintLu
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: cargo install --locked --git https://github.com/LunaDash-DE/SlintLu.git --rev ${{ steps.slintlu.outputs.rev }} slintlu
+      - name: Compile the shell
+        run: ~/.cargo/bin/slintlu check .
+      - name: Install with the SlintLu check
+        run: |
+          PATH="$HOME/.cargo/bin:$PATH" ./install.sh --prefix "$RUNNER_TEMP/prefix"
+          ~/.cargo/bin/slintlu check "$RUNNER_TEMP/prefix/share/lunadash/shell"
+      - name: Run the shell headless
+        env:
+          SLINTLU: /home/runner/.cargo/bin/slintlu
+          SHOTS: ${{ runner.temp }}/shots
+        run: scripts/headless-check.sh "$RUNNER_TEMP/prefix/share/lunadash/shell"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots
+          path: ${{ runner.temp }}/shots
+          if-no-files-found: ignore

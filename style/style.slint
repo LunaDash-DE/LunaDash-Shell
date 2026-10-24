@@ -1,0 +1,47 @@
+// LunaDash design tokens on top of SlintLu's Theme (which follows theme.json and the desktop's
+// light / dark preference).
+
+import { Theme } from "@slintlu";
+import { Prefs } from "../state/prefs.slint";
+
+export global Style {
+    // Surfaces
+    out property <color> base: Theme.background;
+    out property <color> glass: Theme.background.with-alpha(Prefs.transparency ? 0.86 : 1.0);
+    out property <color> glass-strong: Theme.background.with-alpha(Prefs.transparency ? 0.95 : 1.0);
+    out property <color> surface: Theme.surface;
+    out property <color> elevated: Theme.surface-alt;
+    out property <color> hover: Theme.surface-alt.brighter(Theme.dark ? 0.12 : -0.06);
+    out property <color> border: Theme.border.with-alpha(0.55);
+    out property <color> hairline: Theme.border.with-alpha(0.3);
+    out property <color> scrim: #060a14.with-alpha(0.45);
+    // Content
+    out property <color> text: Theme.text;
+    out property <color> muted: Theme.text-muted;
+    out property <color> accent: Theme.accent;
+    out property <color> accent-soft: Theme.accent.with-alpha(0.18);
+    out property <color> accent-ink: Theme.dark ? Theme.background : #ffffff;
+    out property <color> danger: Theme.red;
+    out property <color> success: Theme.green;
+    out property <color> warning: Theme.yellow;
+    // Typography
+    out property <string> font: Theme.font-family;
+    out property <length> font-size: Theme.font-size;
+    out property <length> font-small: Theme.font-size - 1.5px;
+    out property <length> font-title: Theme.font-size + 4px;
+    // Geometry
+    out property <length> spacing-xs: 4px;
+    out property <length> spacing-sm: 8px;
+    out property <length> spacing-md: 12px;
+    out property <length> spacing-lg: 18px;
+    out property <length> spacing-xl: 24px;
+    out property <length> radius-small: 10px;
+    out property <length> radius-medium: 16px;
+    out property <length> radius: 24px;
+    out property <length> radius-large: 30px;
+    out property <length> panel-height: 40px;
+    out property <length> pill-height: 32px;
+    // Motion
+    out property <duration> motion: Prefs.animations ? 220ms : 0ms;
+    out property <duration> motion-fast: Prefs.animations ? 120ms : 0ms;
+}

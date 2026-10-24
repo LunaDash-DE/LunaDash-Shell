@@ -1,0 +1,184 @@
+// The dock: pinned applications and running windows, grouped per application.
+// Click to open or focus (again to cycle windows), right-click to pin or unpin.
+
+import { PanelWindow, Apps, AppWindows, Workspaces, Store } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { Prefs } from "../state/prefs.slint";
+import { UI } from "../state/ui.slint";
+import { Icon } from "../components/icon.slint";
+
+component DockItem inherits Rectangle {
+    in property <image> icon;
+    in property <int> windows;
+    in property <bool> focused;
+    in property <bool> urgent;
+    callback clicked();
+    callback right-clicked();
+    width: 52px;
+    height: 52px;
+    border-radius: Style.radius-medium;
+    background: root.focused ? Style.accent-soft : touch.has-hover ? Style.hover.with-alpha(0.6) : transparent;
+    animate background { duration: Style.motion-fast; }
+    Image {
+        source: root.icon;
+        width: touch.pressed ? 34px : touch.has-hover ? 40px : 38px;
+        height: self.width;
+        image-fit: contain;
+        animate width { duration: Style.motion-fast; easing: ease-out; }
+    }
+    if root.icon.width == 0: Icon { name: "apps"; width: 28px; height: 28px; color: Style.muted; }
+    // Running indicator: one dot per window, up to three.
+    HorizontalLayout {
+        y: parent.height - 6px;
+        height: 4px;
+        alignment: center;
+        spacing: 3px;
+        for i in min(root.windows, 3): Rectangle {
+            width: root.focused && i == 0 ? 12px : 4px;
+            height: 4px;
+            border-radius: 2px;
+            background: root.urgent ? Style.danger : root.focused ? Style.accent : Style.muted;
+            animate width { duration: Style.motion; }
+        }
+    }
+    touch := TouchArea {
+        clicked => { root.clicked(); }
+        pointer-event(event) => {
+            if event.kind == PointerEventKind.down && event.button == PointerEventButton.right {
+                root.right-clicked();
+            }
+        }
+    }
+}
+
+export component Dock inherits PanelWindow {
+    namespace: "lunadash-dock";
+    anchor-bottom: true;
+    margin-bottom: 8px;
+    shown: Prefs.dock;
+    default-font-family: Style.font;
+
+    property <[AppWindows]> items: Apps.group-windows(Prefs.pinned, Workspaces.windows);
+
+    // The first time applications are known, pin one browser, file manager, terminal and
+    // editor that are installed.
+    property <int> app-count: Apps.all.length;
+    changed app-count => {
+        if !UI.primary || self.app-count == 0 || Store.get-bool("dock-seeded", false, Store.revision) {
+            return;
+        }
+        Store.set-bool("dock-seeded", true);
+        // browser
+        if Apps.get("firefox.desktop").id != "" {
+            Store.list-add("dock-pinned", "firefox.desktop");
+        } else if Apps.get("org.mozilla.firefox.desktop").id != "" {
+            Store.list-add("dock-pinned", "org.mozilla.firefox.desktop");
+        } else if Apps.get("zen.desktop").id != "" {
+            Store.list-add("dock-pinned", "zen.desktop");
+        } else if Apps.get("librewolf.desktop").id != "" {
+            Store.list-add("dock-pinned", "librewolf.desktop");
+        } else if Apps.get("chromium.desktop").id != "" {
+            Store.list-add("dock-pinned", "chromium.desktop");
+        } else if Apps.get("google-chrome.desktop").id != "" {
+            Store.list-add("dock-pinned", "google-chrome.desktop");
+        } else if Apps.get("brave-browser.desktop").id != "" {
+            Store.list-add("dock-pinned", "brave-browser.desktop");
+        } else if Apps.get("org.gnome.Epiphany.desktop").id != "" {
+            Store.list-add("dock-pinned", "org.gnome.Epiphany.desktop");
+        }
+        // files
+        if Apps.get("org.gnome.Nautilus.desktop").id != "" {
+            Store.list-add("dock-pinned", "org.gnome.Nautilus.desktop");
+        } else if Apps.get("org.kde.dolphin.desktop").id != "" {
+            Store.list-add("dock-pinned", "org.kde.dolphin.desktop");
+        } else if Apps.get("thunar.desktop").id != "" {
+            Store.list-add("dock-pinned", "thunar.desktop");
+        } else if Apps.get("nemo.desktop").id != "" {
+            Store.list-add("dock-pinned", "nemo.desktop");
+        } else if Apps.get("pcmanfm.desktop").id != "" {
+            Store.list-add("dock-pinned", "pcmanfm.desktop");
+        }
+        // terminal
+        if Apps.get("foot.desktop").id != "" {
+            Store.list-add("dock-pinned", "foot.desktop");
+        } else if Apps.get("kitty.desktop").id != "" {
+            Store.list-add("dock-pinned", "kitty.desktop");
+        } else if Apps.get("Alacritty.desktop").id != "" {
+            Store.list-add("dock-pinned", "Alacritty.desktop");
+        } else if Apps.get("com.mitchellh.ghostty.desktop").id != "" {
+            Store.list-add("dock-pinned", "com.mitchellh.ghostty.desktop");
+        } else if Apps.get("org.wezfurlong.wezterm.desktop").id != "" {
+            Store.list-add("dock-pinned", "org.wezfurlong.wezterm.desktop");
+        } else if Apps.get("org.kde.konsole.desktop").id != "" {
+            Store.list-add("dock-pinned", "org.kde.konsole.desktop");
+        } else if Apps.get("org.gnome.Console.desktop").id != "" {
+            Store.list-add("dock-pinned", "org.gnome.Console.desktop");
+        } else if Apps.get("org.gnome.Terminal.desktop").id != "" {
+            Store.list-add("dock-pinned", "org.gnome.Terminal.desktop");
+        }
+        // editor
+        if Apps.get("code.desktop").id != "" {
+            Store.list-add("dock-pinned", "code.desktop");
+        } else if Apps.get("codium.desktop").id != "" {
+            Store.list-add("dock-pinned", "codium.desktop");
+        } else if Apps.get("dev.zed.Zed.desktop").id != "" {
+            Store.list-add("dock-pinned", "dev.zed.Zed.desktop");
+        } else if Apps.get("org.gnome.TextEditor.desktop").id != "" {
+            Store.list-add("dock-pinned", "org.gnome.TextEditor.desktop");
+        } else if Apps.get("org.kde.kate.desktop").id != "" {
+            Store.list-add("dock-pinned", "org.kde.kate.desktop");
+        }
+    }
+
+    preferred-height: 68px;
+    preferred-width: row.preferred-width;
+
+    Rectangle {
+        border-radius: Style.radius-large;
+        background: Style.glass;
+        border-width: 1px;
+        border-color: Style.hairline;
+        row := HorizontalLayout {
+            padding: 8px;
+            spacing: 4px;
+            Rectangle {
+                width: 52px;
+                height: 52px;
+                border-radius: Style.radius-medium;
+                background: UI.overlay == "launcher" ? Style.accent : launcher-touch.has-hover ? Style.hover.with-alpha(0.6) : transparent;
+                Icon { name: "apps"; width: 24px; height: 24px; color: UI.overlay == "launcher" ? Style.accent-ink : Style.text; }
+                launcher-touch := TouchArea { clicked => { UI.toggle-overlay("launcher"); } }
+            }
+            if root.items.length > 0: Rectangle {
+                width: 1px;
+                background: Style.hairline;
+            }
+            for item in root.items: DockItem {
+                icon: item.app.icon;
+                windows: item.windows.length;
+                focused: item.focused;
+                urgent: item.urgent;
+                clicked => {
+                    if item.windows.length == 0 {
+                        Apps.launch(item.app.id);
+                    } else if item.focused && item.windows.length > 1 {
+                        // The focused window comes first: move on to the next one.
+                        Workspaces.focus-window(item.windows[1]);
+                    } else {
+                        Workspaces.focus-window(item.windows[0]);
+                    }
+                }
+                right-clicked => {
+                    if item.app.id == "" {
+                        return;
+                    }
+                    if item.pinned {
+                        Store.list-remove("dock-pinned", item.app.id);
+                    } else {
+                        Store.list-add("dock-pinned", item.app.id);
+                    }
+                }
+            }
+        }
+    }
+}

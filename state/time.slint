@@ -1,0 +1,23 @@
+// Clock texts following the 12 / 24 hour preference.
+
+import { Clock } from "@slintlu";
+import { Prefs } from "prefs.slint";
+
+export global Time {
+    out property <string> clock: root.hm(Clock.hour, Clock.minute) + (Prefs.clock-seconds ? ":" + root.two(Clock.second) : "") + root.suffix(Clock.hour);
+    out property <string> short-date: Clock.format-date(Clock.year, Clock.month, Clock.day, "%a, %m.%d");
+    out property <string> long-date: Clock.format-date(Clock.year, Clock.month, Clock.day, "%Y/%m/%d %A");
+
+    public pure function two(n: int) -> string {
+        return n < 10 ? "0" + n : "" + n;
+    }
+    public pure function hm(hour: int, minute: int) -> string {
+        if Prefs.clock-24h {
+            return root.two(hour) + ":" + root.two(minute);
+        }
+        return (Math.mod(hour + 11, 12) + 1) + ":" + root.two(minute);
+    }
+    public pure function suffix(hour: int) -> string {
+        return Prefs.clock-24h ? "" : hour < 12 ? " AM" : " PM";
+    }
+}

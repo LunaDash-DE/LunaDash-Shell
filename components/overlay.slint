@@ -1,0 +1,52 @@
+// Full-screen overlays (dashboard, launcher, settings …): a dimmed backdrop that closes on
+// click, with the content centred.
+
+import { PanelWindow, Layer, KeyboardMode, ExclusiveMode } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { UI } from "../state/ui.slint";
+import { Surface } from "controls.slint";
+
+export component Overlay inherits PanelWindow {
+    // The UI.overlay value that opens it.
+    in property <string> name;
+    in property <length> content-width: 900px;
+    in property <length> content-height: 600px;
+    in property <bool> dim: true;
+    callback escape();
+    layer: Layer.overlay;
+    keyboard-mode: KeyboardMode.exclusive;
+    exclusive-mode: ExclusiveMode.ignore;
+    anchor-top: true;
+    anchor-bottom: true;
+    anchor-left: true;
+    anchor-right: true;
+    shown: UI.overlay == root.name && UI.on-active-screen;
+    default-font-family: Style.font;
+    escape => { UI.close-all(); }
+
+    Rectangle {
+        background: root.dim ? Style.scrim : transparent;
+        TouchArea { clicked => { UI.close-all(); } }
+    }
+    scope := FocusScope {
+        key-pressed(event) => {
+            if event.text == Key.Escape {
+                root.escape();
+                return accept;
+            }
+            reject
+        }
+        Surface {
+            x: (parent.width - self.width) / 2;
+            y: max(Style.panel-height + 20px, (parent.height - self.height) / 2);
+            width: min(root.content-width, parent.width - 40px);
+            height: min(root.content-height, parent.height - Style.panel-height - 40px);
+            // Swallow clicks so they do not reach the backdrop.
+            TouchArea { }
+            @children
+        }
+    }
+    changed shown => {
+        if self.shown { scope.focus(); }
+    }
+}

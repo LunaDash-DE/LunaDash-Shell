@@ -1,0 +1,159 @@
+// The lock screen, shown on every screen while the session is locked.
+
+import { LockWindow, Session, Battery, Media, Notifications } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { Time } from "../state/time.slint";
+import { Icon } from "../components/icon.slint";
+import { IconButton } from "../components/controls.slint";
+import { Wallpapers } from "../wallpaper/wallpaper.slint";
+
+export component LockScreen inherits LockWindow {
+    default-font-family: Style.font;
+    property <bool> locked: Session.locked;
+    property <string> message: Session.message;
+    property <length> shake;
+
+    changed locked => {
+        password.text = "";
+        password.focus();
+    }
+    changed message => {
+        if self.message != "" {
+            password.text = "";
+            shake-anim.running = true;
+        }
+    }
+    init => { password.focus(); }
+
+    shake-anim := Timer {
+        interval: 40ms;
+        running: false;
+        property <int> step;
+        triggered => {
+            self.step += 1;
+            root.shake = Math.mod(self.step, 2) == 0 ? 8px : -8px;
+            if self.step >= 8 {
+                self.step = 0;
+                root.shake = 0;
+                self.running = false;
+            }
+        }
+    }
+
+    Image {
+        width: parent.width;
+        height: parent.height;
+        source: Wallpapers.current();
+        image-fit: cover;
+    }
+    Rectangle { background: #000000a0; }
+
+    VerticalLayout {
+        y: parent.height * 0.14;
+        height: self.preferred-height;
+        alignment: start;
+        spacing: 4px;
+        Text { text: Time.clock; color: #ffffff; font-size: 120px; font-weight: 200; horizontal-alignment: center; }
+        Text { text: Time.long-date; color: #ffffffd0; font-size: 22px; horizontal-alignment: center; }
+    }
+
+    VerticalLayout {
+        x: (parent.width - self.width) / 2 + root.shake;
+        y: parent.height * 0.56;
+        width: 360px;
+        height: self.preferred-height;
+        spacing: 14px;
+        Rectangle {
+            width: 84px;
+            height: 84px;
+            x: (parent.width - self.width) / 2;
+            border-radius: 42px;
+            background: #ffffff22;
+            border-width: 2px;
+            border-color: #ffffff55;
+            Icon { name: "user"; width: 40px; height: 40px; color: #ffffff; }
+        }
+        Text { text: Session.user; color: #ffffff; font-size: 18px; font-weight: 600; horizontal-alignment: center; }
+        Rectangle {
+            height: 48px;
+            border-radius: 24px;
+            background: #ffffff1c;
+            border-width: 1px;
+            border-color: Session.message != "" ? Style.danger : password.has-focus ? #ffffff80 : #ffffff40;
+            HorizontalLayout {
+                padding-left: 20px;
+                padding-right: 6px;
+                spacing: 10px;
+                Icon { name: "lock"; width: 18px; height: 18px; y: (parent.height - self.height) / 2; color: #ffffffb0; }
+                Rectangle {
+                    password := TextInput {
+                        width: 100%;
+                        height: 100%;
+                        vertical-alignment: center;
+                        input-type: InputType.password;
+                        single-line: true;
+                        color: #ffffff;
+                        font-size: 16px;
+                        enabled: !Session.authenticating;
+                        accepted => {
+                            if self.text != "" {
+                                Session.authenticate(self.text);
+                            }
+                        }
+                    }
+                    if password.text == "": Text {
+                        width: 100%;
+                        height: 100%;
+                        vertical-alignment: center;
+                        text: Session.authenticating ? @tr("Checking…") : @tr("Password");
+                        color: #ffffff90;
+                        font-size: 16px;
+                    }
+                }
+                IconButton {
+                    icon: "chevron-right";
+                    size: 36px;
+                    y: (parent.height - self.height) / 2;
+                    active: password.text != "";
+                    clicked => {
+                        if password.text != "" {
+                            Session.authenticate(password.text);
+                        }
+                    }
+                }
+            }
+        }
+        Text {
+            text: Session.message;
+            color: #ffb4b4;
+            horizontal-alignment: center;
+            wrap: word-wrap;
+        }
+    }
+
+    // Status along the bottom.
+    HorizontalLayout {
+        y: parent.height - 56px;
+        height: 32px;
+        padding-left: 32px;
+        padding-right: 32px;
+        spacing: 18px;
+        if Media.player.bus-name != "": HorizontalLayout {
+            spacing: 8px;
+            Icon { name: "music"; width: 16px; height: 16px; y: (parent.height - self.height) / 2; color: #ffffffc0; }
+            Text { text: Media.player.title + (Media.player.artist != "" ? " — " + Media.player.artist : ""); color: #ffffffc0; vertical-alignment: center; overflow: elide; max-width: 420px; }
+            IconButton { icon: Media.player.playing ? "pause" : "play"; tint: #ffffff; clicked => { Media.play-pause(); } }
+        }
+        Rectangle { horizontal-stretch: 1; }
+        if Notifications.count > 0: HorizontalLayout {
+            spacing: 6px;
+            Icon { name: "bell"; width: 16px; height: 16px; y: (parent.height - self.height) / 2; color: #ffffffc0; }
+            Text { text: Notifications.count; color: #ffffffc0; vertical-alignment: center; }
+        }
+        if Battery.available: HorizontalLayout {
+            spacing: 6px;
+            Icon { name: Battery.charging ? "battery-charging" : "battery"; width: 16px; height: 16px; y: (parent.height - self.height) / 2; color: #ffffffc0; }
+            Text { text: Math.round(Battery.level * 100) + "%"; color: #ffffffc0; vertical-alignment: center; }
+        }
+    }
+}

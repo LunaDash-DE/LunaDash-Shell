@@ -1,0 +1,410 @@
+// The dashboard: overview cards, media, performance and notifications.
+
+import { Clock, System, Battery, Network, Audio, Brightness, Bluetooth, Notifications, Media, Idle, Theme, Compositor, Shell, Files } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { Prefs } from "../state/prefs.slint";
+import { UI } from "../state/ui.slint";
+import { Time } from "../state/time.slint";
+import { Overlay } from "../components/overlay.slint";
+import { Icon } from "../components/icon.slint";
+import { Card, QuickToggle, Slider, IconButton, TextButton, SectionTitle } from "../components/controls.slint";
+import { DefaultApps } from "../state/apps.slint";
+
+component Tab inherits Rectangle {
+    in property <string> icon;
+    in property <string> label;
+    in property <bool> selected;
+    callback clicked();
+    height: 44px;
+    border-radius: Style.radius-medium;
+    background: root.selected ? Style.elevated : touch.has-hover ? Style.hover.with-alpha(0.5) : transparent;
+    border-width: root.selected ? 1px : 0;
+    border-color: Style.border;
+    HorizontalLayout {
+        alignment: center;
+        spacing: 8px;
+        Icon { name: root.icon; width: 18px; height: 18px; y: (parent.height - self.height) / 2; color: root.selected ? Style.accent : Style.muted; }
+        Text { text: root.label; color: root.selected ? Style.text : Style.muted; vertical-alignment: center; font-weight: root.selected ? 600 : 400; }
+    }
+    touch := TouchArea { clicked => { root.clicked(); } }
+}
+
+component StatCard inherits Card {
+    in property <string> icon;
+    in property <string> label;
+    in property <string> value;
+    in property <float> ratio: -1;
+    VerticalLayout {
+        padding: Style.spacing-lg;
+        spacing: 6px;
+        HorizontalLayout {
+            spacing: 8px;
+            Icon { name: root.icon; width: 18px; height: 18px; color: Style.accent; }
+            Text { text: root.label; color: Style.muted; font-size: Style.font-small; vertical-alignment: center; }
+        }
+        Rectangle { vertical-stretch: 1; }
+        Text { text: root.value; color: Style.text; font-size: root.value.character-count > 6 ? 18px : 26px; overflow: elide; }
+        if root.ratio >= 0: Rectangle {
+            height: 6px;
+            border-radius: 3px;
+            background: Style.elevated;
+            Rectangle {
+                x: 0;
+                width: parent.width * clamp(root.ratio, 0, 1);
+                border-radius: 3px;
+                background: root.ratio > 0.85 ? Style.danger : Style.accent;
+                animate width { duration: Style.motion; }
+            }
+        }
+    }
+}
+
+component Bar inherits Rectangle {
+    in property <float> ratio;
+    height: 8px;
+    border-radius: 4px;
+    background: Style.elevated;
+    Rectangle {
+        x: 0;
+        width: parent.width * clamp(root.ratio, 0, 1);
+        border-radius: 4px;
+        background: root.ratio > 0.85 ? Style.danger : Style.accent;
+        animate width { duration: Style.motion; }
+    }
+}
+
+component OverviewTab inherits HorizontalLayout {
+    spacing: Style.spacing-md;
+    // Hero card with the wallpaper.
+    Rectangle {
+        horizontal-stretch: 5;
+        border-radius: Style.radius-medium;
+        clip: true;
+        background: Style.surface;
+        Image {
+            width: parent.width;
+            height: parent.height;
+            source: Prefs.wallpaper != "" ? Files.image(Prefs.wallpaper) : @image-url("../assets/wallpapers/florist.png");
+            image-fit: cover;
+        }
+        Rectangle {
+            y: parent.height * 0.55;
+            height: parent.height * 0.45;
+            background: @linear-gradient(180deg, transparent 0%, #000000aa 100%);
+        }
+        VerticalLayout {
+            alignment: end;
+            padding: Style.spacing-xl;
+            spacing: 2px;
+            Text { text: "LunaDash"; color: #ffffff; font-size: 34px; font-weight: 700; }
+            Text { text: @tr("A modern Wayland desktop"); color: #ffffffdd; }
+            Text { text: System.os + " · " + Shell.compositor + " · SlintLu " + Shell.version; color: #ffffffaa; font-size: Style.font-small; }
+        }
+    }
+    VerticalLayout {
+        horizontal-stretch: 4;
+        spacing: Style.spacing-md;
+        Card {
+            vertical-stretch: 2;
+            HorizontalLayout {
+                padding: Style.spacing-xl;
+                VerticalLayout {
+                    alignment: center;
+                    Text { text: Time.clock; color: Style.text; font-size: 46px; font-weight: 300; }
+                    Text { text: Time.long-date; color: Style.muted; }
+                }
+                Rectangle { horizontal-stretch: 1; }
+                VerticalLayout {
+                    alignment: center;
+                    Text { text: Battery.available ? Math.round(Battery.level * 100) + "%" : System.uptime; color: Style.text; font-size: 22px; horizontal-alignment: right; }
+                    Text { text: Battery.available ? (Battery.charging ? @tr("Charging") : Battery.time-remaining) : @tr("Uptime"); color: Style.muted; font-size: Style.font-small; horizontal-alignment: right; }
+                }
+            }
+        }
+        HorizontalLayout {
+            vertical-stretch: 2;
+            spacing: Style.spacing-md;
+            StatCard { icon: "cpu"; label: @tr("CPU"); value: Math.round(System.cpu * 100) + "%"; ratio: System.cpu; }
+            StatCard { icon: "memory"; label: @tr("Memory"); value: Math.round(System.memory * 100) + "%"; ratio: System.memory; }
+        }
+        HorizontalLayout {
+            vertical-stretch: 2;
+            spacing: Style.spacing-md;
+            StatCard {
+                icon: Network.kind == "wifi" ? "wifi" : "network";
+                label: @tr("Network");
+                value: !Network.available ? "—" : Network.connected ? (Network.online ? @tr("Connected") : @tr("Limited")) : @tr("Offline");
+            }
+            StatCard { icon: "thermometer"; label: @tr("Temperature"); value: System.temperature > 0 ? Math.round(System.temperature) + "°C" : "—"; }
+        }
+        HorizontalLayout {
+            spacing: Style.spacing-sm;
+            TextButton { horizontal-stretch: 1; icon: "settings"; text: @tr("Settings"); clicked => { UI.open-settings("appearance"); } }
+            TextButton { horizontal-stretch: 1; icon: "folder"; text: @tr("Files"); clicked => { DefaultApps.files(); UI.close-all(); } }
+            TextButton { horizontal-stretch: 1; icon: "terminal"; text: @tr("Terminal"); clicked => { DefaultApps.terminal(); UI.close-all(); } }
+        }
+    }
+}
+
+component ControlsColumn inherits VerticalLayout {
+    spacing: Style.spacing-sm;
+    GridLayout {
+        spacing: Style.spacing-sm;
+        Row {
+            QuickToggle {
+                icon: Network.wifi-enabled ? "wifi" : "wifi-off";
+                label: @tr("Wi-Fi");
+                detail: Network.kind == "wifi" ? Network.name : Network.wifi-enabled ? @tr("On") : @tr("Off");
+                on: Network.wifi-enabled;
+                enabled: Network.available;
+                clicked => { Network.set-wifi-enabled(!Network.wifi-enabled); }
+            }
+            QuickToggle {
+                icon: "bluetooth";
+                label: @tr("Bluetooth");
+                detail: Bluetooth.powered ? @tr("On") : @tr("Off");
+                on: Bluetooth.powered;
+                enabled: Bluetooth.available;
+                clicked => { Bluetooth.set-powered(!Bluetooth.powered); }
+            }
+        }
+        Row {
+            QuickToggle {
+                icon: Notifications.do-not-disturb ? "bell-off" : "bell";
+                label: @tr("Do not disturb");
+                on: Notifications.do-not-disturb;
+                clicked => { Notifications.set-do-not-disturb(!Notifications.do-not-disturb); }
+            }
+            QuickToggle {
+                icon: "coffee";
+                label: @tr("Keep awake");
+                on: Idle.inhibited;
+                enabled: Idle.available;
+                clicked => { Idle.set-inhibited(!Idle.inhibited); }
+            }
+        }
+        Row {
+            QuickToggle {
+                icon: Theme.dark ? "moon" : "sun";
+                label: Theme.dark ? @tr("Dark") : @tr("Light");
+                detail: @tr("Appearance");
+                on: Theme.dark;
+                clicked => { Theme.set-mode(Theme.dark ? "light" : "dark"); }
+            }
+            QuickToggle {
+                icon: "image";
+                label: @tr("Wallpaper");
+                clicked => { UI.open-overlay("gallery"); }
+            }
+        }
+    }
+    if Audio.available: Slider {
+        icon: Audio.output.muted ? "volume-mute" : "volume";
+        value: Audio.output.volume;
+        maximum: 1.5;
+        changed(v) => { Audio.set-volume(v); }
+        icon-clicked => { Audio.toggle-muted(); }
+    }
+    if Brightness.available: Slider {
+        icon: "brightness";
+        value: Brightness.level;
+        changed(v) => { Brightness.set(max(0.02, v)); }
+    }
+}
+
+component MediaTab inherits HorizontalLayout {
+    spacing: Style.spacing-lg;
+    if Media.player.bus-name == "": VerticalLayout {
+        alignment: center;
+        spacing: Style.spacing-sm;
+        HorizontalLayout { alignment: center; Icon { name: "music"; width: 48px; height: 48px; color: Style.muted; } }
+        Text { text: @tr("Nothing is playing"); color: Style.muted; horizontal-alignment: center; }
+    }
+    if Media.player.bus-name != "": Rectangle {
+        width: 300px;
+        border-radius: Style.radius-medium;
+        background: Style.elevated;
+        clip: true;
+        Image { width: parent.width; height: parent.height; source: Media.player.art; image-fit: cover; }
+        if Media.player.art.width == 0: Icon { name: "music"; width: 72px; height: 72px; color: Style.muted; }
+    }
+    if Media.player.bus-name != "": VerticalLayout {
+        alignment: center;
+        spacing: Style.spacing-sm;
+        Text { text: Media.player.identity; color: Style.accent; font-size: Style.font-small; }
+        Text { text: Media.player.title; color: Style.text; font-size: 26px; font-weight: 600; wrap: word-wrap; }
+        Text { text: Media.player.artist + (Media.player.album != "" ? " — " + Media.player.album : ""); color: Style.muted; wrap: word-wrap; }
+        if Media.player.length > 0: VerticalLayout {
+            spacing: 4px;
+            Bar { ratio: Media.player.position / Media.player.length; }
+            HorizontalLayout {
+                Text { text: Math.floor(Media.player.position / 60) + ":" + (Math.mod(Math.floor(Media.player.position), 60) < 10 ? "0" : "") + Math.mod(Math.floor(Media.player.position), 60); color: Style.muted; font-size: Style.font-small; }
+                Rectangle { horizontal-stretch: 1; }
+                Text { text: Math.floor(Media.player.length / 60) + ":" + (Math.mod(Math.floor(Media.player.length), 60) < 10 ? "0" : "") + Math.mod(Math.floor(Media.player.length), 60); color: Style.muted; font-size: Style.font-small; }
+            }
+        }
+        HorizontalLayout {
+            spacing: Style.spacing-md;
+            alignment: start;
+            IconButton { icon: "previous"; size: 44px; icon-size: 20px; clicked => { Media.previous(); } }
+            IconButton { icon: Media.player.playing ? "pause" : "play"; size: 52px; icon-size: 22px; active: true; clicked => { Media.play-pause(); } }
+            IconButton { icon: "next"; size: 44px; icon-size: 20px; clicked => { Media.next(); } }
+        }
+        if Media.players.length > 1: VerticalLayout {
+            spacing: 4px;
+            SectionTitle { text: @tr("PLAYERS"); }
+            for player in Media.players: Text {
+                text: (player.playing ? "▶ " : "") + player.identity + (player.title != "" ? " — " + player.title : "");
+                color: player.bus-name == Media.player.bus-name ? Style.text : Style.muted;
+                overflow: elide;
+            }
+        }
+    }
+}
+
+component PerformanceTab inherits HorizontalLayout {
+    spacing: Style.spacing-md;
+    Card {
+        horizontal-stretch: 1;
+        VerticalLayout {
+            padding: Style.spacing-lg;
+            spacing: Style.spacing-sm;
+            SectionTitle { text: @tr("PROCESSOR · {}%", Math.round(System.cpu * 100)); }
+            Flickable {
+                content-height: cores.preferred-height;
+                cores := VerticalLayout {
+                    spacing: 6px;
+                    for usage[i] in System.cpu-cores: HorizontalLayout {
+                        spacing: 8px;
+                        Text { width: 34px; text: "#" + i; color: Style.muted; font-size: Style.font-small; }
+                        Bar { ratio: usage; y: (parent.height - self.height) / 2; }
+                    }
+                }
+            }
+        }
+    }
+    VerticalLayout {
+        horizontal-stretch: 1;
+        spacing: Style.spacing-md;
+        Card {
+            VerticalLayout {
+                padding: Style.spacing-lg;
+                spacing: Style.spacing-sm;
+                SectionTitle { text: @tr("MEMORY"); }
+                Text { text: System.memory-text; color: Style.text; }
+                Bar { ratio: System.memory; }
+                SectionTitle { text: @tr("SWAP"); }
+                Bar { ratio: System.swap; }
+                SectionTitle { text: @tr("DISK"); }
+                Text { text: System.disk-text; color: Style.text; }
+                Bar { ratio: System.disk; }
+            }
+        }
+        Card {
+            VerticalLayout {
+                padding: Style.spacing-lg;
+                spacing: Style.spacing-sm;
+                SectionTitle { text: @tr("NETWORK"); }
+                Text { text: "↓ " + System.download-text + "    ↑ " + System.upload-text; color: Style.text; }
+                SectionTitle { text: @tr("SYSTEM"); }
+                Text { text: System.hostname + " · " + System.kernel; color: Style.text; overflow: elide; }
+                Text { text: @tr("Up {}", System.uptime); color: Style.muted; }
+                if System.temperature > 0: Text { text: @tr("Hottest sensor {}°C", Math.round(System.temperature)); color: System.temperature > 85 ? Style.danger : Style.muted; }
+            }
+        }
+    }
+}
+
+component NotificationsTab inherits VerticalLayout {
+    spacing: Style.spacing-md;
+    HorizontalLayout {
+        spacing: Style.spacing-sm;
+        Text { text: @tr("{} notifications", Notifications.count); color: Style.text; font-size: Style.font-title; vertical-alignment: center; horizontal-stretch: 1; }
+        TextButton {
+            icon: Notifications.do-not-disturb ? "bell-off" : "bell";
+            text: Notifications.do-not-disturb ? @tr("Do not disturb is on") : @tr("Do not disturb");
+            clicked => { Notifications.set-do-not-disturb(!Notifications.do-not-disturb); }
+        }
+        if Notifications.count > 0: TextButton { icon: "trash"; text: @tr("Clear all"); clicked => { Notifications.dismiss-all(); } }
+    }
+    if !Notifications.available: Text { text: @tr("Another notification daemon is running; LunaDash shows no history."); color: Style.muted; wrap: word-wrap; }
+    if Notifications.available && Notifications.count == 0: VerticalLayout {
+        alignment: center;
+        vertical-stretch: 1;
+        spacing: Style.spacing-sm;
+        HorizontalLayout { alignment: center; Icon { name: "bell"; width: 44px; height: 44px; color: Style.muted; } }
+        Text { text: @tr("You're all caught up"); color: Style.muted; horizontal-alignment: center; }
+    }
+    Flickable {
+        vertical-stretch: 1;
+        content-height: items.preferred-height;
+        items := VerticalLayout {
+            spacing: Style.spacing-sm;
+            for n in Notifications.history: Card {
+                height: content.preferred-height;
+                content := HorizontalLayout {
+                    padding: Style.spacing-md;
+                    spacing: Style.spacing-md;
+                    Image { source: n.icon; width: 32px; height: 32px; image-fit: contain; }
+                    VerticalLayout {
+                        horizontal-stretch: 1;
+                        spacing: 2px;
+                        HorizontalLayout {
+                            Text { text: n.app-name; color: Style.accent; font-size: Style.font-small; horizontal-stretch: 1; }
+                            Text { text: n.time; color: Style.muted; font-size: Style.font-small; }
+                        }
+                        Text { text: n.summary; color: Style.text; font-weight: 600; wrap: word-wrap; }
+                        if n.body != "": Text { text: n.body; color: Style.muted; wrap: word-wrap; }
+                        if n.actions.length > 0: HorizontalLayout {
+                            spacing: 6px;
+                            alignment: start;
+                            for action in n.actions: TextButton {
+                                text: action.label;
+                                clicked => { Notifications.invoke(n.id, action.key); }
+                            }
+                        }
+                    }
+                    IconButton { icon: "close"; size: 26px; icon-size: 13px; clicked => { Notifications.dismiss(n.id); } }
+                }
+            }
+        }
+    }
+}
+
+export component Dashboard inherits Overlay {
+    name: "dashboard";
+    namespace: "lunadash-dashboard";
+    content-width: 1060px;
+    content-height: 640px;
+
+    VerticalLayout {
+        padding: Style.spacing-lg;
+        spacing: Style.spacing-md;
+        HorizontalLayout {
+            spacing: Style.spacing-sm;
+            for tab[i] in [
+                { icon: "dashboard", label: @tr("Dashboard") },
+                { icon: "music", label: @tr("Media") },
+                { icon: "cpu", label: @tr("Performance") },
+                { icon: "bell", label: @tr("Notifications") },
+            ]: Tab {
+                horizontal-stretch: 1;
+                icon: tab.icon;
+                label: tab.label;
+                selected: UI.dashboard-tab == i;
+                clicked => { UI.open-dashboard(i); }
+            }
+            IconButton { icon: "close"; size: 36px; y: (parent.height - self.height) / 2; clicked => { UI.close-all(); } }
+        }
+        Rectangle { height: 1px; background: Style.hairline; }
+        HorizontalLayout {
+            vertical-stretch: 1;
+            spacing: Style.spacing-lg;
+            if UI.dashboard-tab == 0: OverviewTab { horizontal-stretch: 3; }
+            if UI.dashboard-tab == 1: MediaTab { horizontal-stretch: 3; }
+            if UI.dashboard-tab == 2: PerformanceTab { horizontal-stretch: 3; }
+            if UI.dashboard-tab == 3: NotificationsTab { horizontal-stretch: 3; }
+            ControlsColumn { width: 300px; }
+        }
+    }
+}

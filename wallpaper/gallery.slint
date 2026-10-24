@@ -1,0 +1,142 @@
+// The wallpaper picker: the bundled wallpaper and every image in a folder.
+
+import { Files, FileEntry, Store } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { Prefs } from "../state/prefs.slint";
+import { UI } from "../state/ui.slint";
+import { Overlay } from "../components/overlay.slint";
+import { Icon } from "../components/icon.slint";
+import { TextButton, IconButton } from "../components/controls.slint";
+import { Wallpapers } from "wallpaper.slint";
+
+component Thumb inherits Rectangle {
+    in property <image> image;
+    in property <string> label;
+    in property <bool> selected;
+    in property <bool> folder;
+    callback clicked();
+    border-radius: Style.radius-medium;
+    background: Style.elevated;
+    border-width: root.selected ? 3px : touch.has-hover ? 1px : 0;
+    border-color: root.selected ? Style.accent : Style.border;
+    clip: true;
+    Image {
+        x: 3px;
+        y: 3px;
+        width: parent.width - 6px;
+        height: parent.height - 6px;
+        source: root.image;
+        image-fit: cover;
+    }
+    if root.image.width == 0: Icon { name: root.folder ? "folder" : "image"; width: 28px; height: 28px; color: Style.muted; }
+    Rectangle {
+        y: parent.height - 28px;
+        height: 28px;
+        background: #00000080;
+        Text {
+            x: 10px;
+            width: parent.width - 20px;
+            text: root.label;
+            color: #ffffff;
+            font-size: Style.font-small;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+    }
+    if root.selected: Rectangle {
+        x: parent.width - 30px;
+        y: 8px;
+        width: 22px;
+        height: 22px;
+        border-radius: 11px;
+        background: Style.accent;
+        Icon { name: "check"; width: 14px; height: 14px; color: Style.accent-ink; }
+    }
+    touch := TouchArea { clicked => { root.clicked(); } }
+}
+
+export component Gallery inherits Overlay {
+    name: "gallery";
+    namespace: "lunadash-gallery";
+    content-width: 980px;
+    content-height: 620px;
+
+    property <[FileEntry]> entries: Files.list(Prefs.wallpaper-dir, "png,jpg,jpeg,webp,bmp");
+    property <int> columns: 4;
+
+    changed shown => {
+        if self.shown {
+            folder.text = Prefs.wallpaper-dir;
+        }
+    }
+
+    VerticalLayout {
+        padding: Style.spacing-xl;
+        spacing: Style.spacing-lg;
+        HorizontalLayout {
+            spacing: Style.spacing-md;
+            Text { text: @tr("Wallpaper"); color: Style.text; font-size: Style.font-title; font-weight: 600; vertical-alignment: center; }
+            Rectangle {
+                horizontal-stretch: 1;
+                height: 36px;
+                border-radius: 18px;
+                background: Style.elevated;
+                border-width: 1px;
+                border-color: folder.has-focus ? Style.accent.with-alpha(0.6) : Style.border;
+                HorizontalLayout {
+                    padding-left: 14px;
+                    padding-right: 14px;
+                    spacing: 8px;
+                    Icon { name: "folder"; width: 16px; height: 16px; y: (parent.height - self.height) / 2; color: Style.muted; }
+                    folder := TextInput {
+                        vertical-alignment: center;
+                        color: Style.text;
+                        single-line: true;
+                        accepted => { Store.set-string("wallpaper-dir", self.text); }
+                    }
+                }
+            }
+            IconButton { icon: "close"; size: 36px; clicked => { UI.close-all(); } }
+        }
+        Flickable {
+            vertical-stretch: 1;
+            property <length> tile-width: self.width / root.columns;
+            property <length> tile-height: self.tile-width * 0.62;
+            property <int> count: root.entries.length + 1;
+            content-height: Math.ceil(self.count / root.columns) * self.tile-height;
+            Thumb {
+                x: 0;
+                y: 0;
+                width: parent.tile-width - 10px;
+                height: parent.tile-height - 10px;
+                image: Wallpapers.default;
+                label: @tr("LunaDash default");
+                selected: Prefs.wallpaper == "";
+                clicked => { Store.remove("wallpaper"); }
+            }
+            for entry[i] in root.entries: Thumb {
+                x: Math.mod(i + 1, root.columns) * parent.tile-width;
+                y: Math.floor((i + 1) / root.columns) * parent.tile-height;
+                width: parent.tile-width - 10px;
+                height: parent.tile-height - 10px;
+                image: entry.is-dir ? Files.thumbnail("", 0, 0) : Files.thumbnail(entry.path, 320, Files.revision);
+                label: entry.name;
+                folder: entry.is-dir;
+                selected: entry.path == Prefs.wallpaper;
+                clicked => {
+                    if entry.is-dir {
+                        Store.set-string("wallpaper-dir", entry.path);
+                        folder.text = entry.path;
+                    } else {
+                        Store.set-string("wallpaper", entry.path);
+                    }
+                }
+            }
+        }
+        if root.entries.length == 0: Text {
+            text: @tr("No images in {}. Choose another folder above.", Prefs.wallpaper-dir);
+            color: Style.muted;
+            horizontal-alignment: center;
+        }
+    }
+}

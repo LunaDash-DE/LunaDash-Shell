@@ -1,0 +1,49 @@
+// The menu of a tray icon.
+
+import { Tray } from "@slintlu";
+import { Style } from "../style/style.slint";
+import { UI } from "../state/ui.slint";
+import { PanelPopup } from "popup.slint";
+
+export component TrayMenu inherits PanelPopup {
+    name: "tray";
+    namespace: "lunadash-tray-menu";
+    preferred-width: 280px;
+    changed shown => {
+        if !self.shown { Tray.close-menu(); }
+    }
+
+    if Tray.menu.length == 0: Text { text: @tr("Loading…"); color: Style.muted; }
+    for entry in Tray.menu: Rectangle {
+        height: entry.separator ? 9px : 30px;
+        border-radius: 8px;
+        background: !entry.separator && entry.enabled && !entry.has-children && touch.has-hover ? Style.hover : transparent;
+        if entry.separator: Rectangle { height: 1px; background: Style.hairline; }
+        if !entry.separator: HorizontalLayout {
+            padding-left: 8px + entry.depth * 14px;
+            padding-right: 8px;
+            spacing: 8px;
+            Text {
+                width: 14px;
+                text: entry.checked ? (entry.toggle-type == "radio" ? "●" : "✓") : "";
+                color: Style.accent;
+                vertical-alignment: center;
+            }
+            Text {
+                text: entry.label;
+                color: entry.has-children ? Style.muted : entry.enabled ? Style.text : Style.muted.with-alpha(0.6);
+                font-weight: entry.has-children ? 600 : 400;
+                vertical-alignment: center;
+                overflow: elide;
+                horizontal-stretch: 1;
+            }
+        }
+        touch := TouchArea {
+            enabled: entry.enabled && !entry.separator && !entry.has-children;
+            clicked => {
+                Tray.menu-activate(entry.id);
+                UI.close-all();
+            }
+        }
+    }
+}
